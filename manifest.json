@@ -2,7 +2,7 @@
   "name": "Bitnova Labs — Kanban",
   "short_name": "Bitnova Kanban",
   "description": "Tablero Kanban para desarrollo de software y ventas - Bitnova Labs",
-  "start_url": "/index.html",
+  "start_url": "/bitnovalabs-kanban/index.html",
   "display": "standalone",
   "background_color": "#06090f",
   "theme_color": "#0a0e17",

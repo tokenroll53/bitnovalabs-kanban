@@ -2556,6 +2556,10 @@
     let unsubArchived = null;
 
     // ====== AUTH ======
+    function isMobile() {
+      return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+    }
+
     function loginWithGoogle() {
       const errorEl = document.getElementById('loginError');
       const loadingEl = document.getElementById('loginLoading');
@@ -2563,12 +2567,26 @@
       loadingEl.classList.add('show');
 
       const provider = new firebase.auth.GoogleAuthProvider();
-      auth.signInWithPopup(provider).catch(err => {
-        loadingEl.classList.remove('show');
+      if (isMobile()) {
+        auth.signInWithRedirect(provider);
+      } else {
+        auth.signInWithPopup(provider).catch(err => {
+          loadingEl.classList.remove('show');
+          errorEl.textContent = getAuthError(err.code);
+          errorEl.classList.add('show');
+        });
+      }
+    }
+
+    // Handle redirect result on page load (mobile)
+    auth.getRedirectResult().catch(err => {
+      if (err.code) {
+        const errorEl = document.getElementById('loginError');
         errorEl.textContent = getAuthError(err.code);
         errorEl.classList.add('show');
-      });
-    }
+        document.getElementById('loginLoading').classList.remove('show');
+      }
+    });
 
     function logout() {
       if (!confirm('¿Cerrar sesión?')) return;

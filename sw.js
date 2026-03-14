@@ -1,8 +1,9 @@
-const CACHE_NAME = 'kanbanflow-v1';
+const CACHE_NAME = 'kanbanflow-v2';
+const BASE = '/bitnovalabs-kanban';
 const ASSETS = [
-  '/',
-  '/index.html',
-  '/manifest.json',
+  BASE + '/',
+  BASE + '/index.html',
+  BASE + '/manifest.json',
   'https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap'
 ];
 
@@ -39,7 +40,7 @@ self.addEventListener('fetch', event => {
       });
     }).catch(() => {
       if (event.request.destination === 'document') {
-        return caches.match('/index.html');
+        return caches.match(BASE + '/index.html');
       }
     })
   );
