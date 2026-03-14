@@ -2582,9 +2582,13 @@
         'auth/popup-blocked': 'El navegador bloqueó la ventana. Habilitá popups para este sitio.',
         'auth/cancelled-popup-request': 'Se canceló el login.',
         'auth/network-request-failed': 'Sin conexión a internet.',
-        'auth/unauthorized-domain': 'Dominio no autorizado en Firebase. Agregá este dominio en la consola de Firebase → Authentication → Settings → Authorized domains.'
+        'auth/unauthorized-domain': 'Dominio no autorizado en Firebase. Agregá este dominio en la consola de Firebase → Authentication → Settings → Authorized domains.',
+        'auth/internal-error': 'Error de configuración en Firebase. Verificá que Google Sign-In esté habilitado en Firebase Console → Authentication → Sign-in method.',
+        'auth/operation-not-allowed': 'Google Sign-In no está habilitado. Activalo en Firebase Console → Authentication → Sign-in method → Google.',
+        'auth/user-disabled': 'Esta cuenta fue deshabilitada.',
+        'auth/account-exists-with-different-credential': 'Ya existe una cuenta con este correo usando otro método de login.',
       };
-      return errors[code] || `Error: ${code}`;
+      return errors[code] || `Error inesperado (${code}). Revisá la consola del navegador para más detalles.`;
     }
 
     // ====== AUTH STATE ======
