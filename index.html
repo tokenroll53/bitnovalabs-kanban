@@ -4,7 +4,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.gstatic.com 'unsafe-inline'; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; font-src https://fonts.gstatic.com; img-src 'self' data: https://lh3.googleusercontent.com https://lh4.googleusercontent.com https://lh5.googleusercontent.com https://lh6.googleusercontent.com; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com https://*.firebase.com wss://*.firebaseio.com; frame-ancestors 'none';">
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self'; script-src 'self' https://www.gstatic.com 'unsafe-inline'; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; font-src https://fonts.gstatic.com; img-src 'self' data: https://lh3.googleusercontent.com https://lh4.googleusercontent.com https://lh5.googleusercontent.com https://lh6.googleusercontent.com; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com https://*.firebase.com wss://*.firebaseio.com; frame-ancestors 'none';">
   <meta name="theme-color" content="#0a0e17">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -280,7 +281,9 @@
       border: 1px solid var(--border-subtle);
     }
 
-    .search-box { max-width: 220px; }
+    .search-box {
+      max-width: 220px;
+    }
 
     .search-box input,
     .archive-search input {
@@ -1550,9 +1553,15 @@
     }
   </style>
   <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"
+    integrity="sha384-sEVIly94UBRLKWdkYoPpSG7GD/e79YHMrxVyZaOk712Ga7+EAw6w1EFi+xBzBdd+"
+    crossorigin="anonymous"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"
+    integrity="sha384-EkqK+ezBWJuvO3hfrSx2iVqr3YQbhmnzn8kPhOpBZ+0GMVU5oGSgptwIu8D84HjE"
+    crossorigin="anonymous"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"
+    integrity="sha384-M481iNZJtbpypKgvlvZ+78Giq0BsewFLk5r2k+MOcGXlwKCc27DQRZ+WCV/zpmpC"
+    crossorigin="anonymous"></script>
 </head>
 
 <body>
@@ -2496,12 +2505,14 @@
     // ⚠️ CONFIGURACIÓN: Reemplaza estos valores con los de tu proyecto Firebase
     // Ve a https://console.firebase.google.com → Tu proyecto → Configuración → General → Tu app web
     const FIREBASE_CONFIG = {
-      apiKey: "AIzaSyB1234567890abcdefg",
+      apiKey: "AIzaSyD4TFiTbrnbIW4UP6zjZOnyceYQQZgIZtQ",
       authDomain: "bitnova-kanban.firebaseapp.com",
       projectId: "bitnova-kanban",
-      storageBucket: "bitnova-kanban.appspot.com",
-      messagingSenderId: "123456789012",
-      appId: "1:123456789012:web:abc123def456"
+      storageBucket: "bitnova-kanban.firebasestorage.app",
+      messagingSenderId: "1041942076502",
+      appId: "1:1041942076502:web:e9432758abab307a232ff7",
+      measurementId: "G-EN9RC8X7R0"
+      // se reemplazaron los datos por lo valores reales de firebase.
     };
 
     // ====== FIREBASE INIT ======
