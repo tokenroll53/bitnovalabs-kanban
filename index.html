@@ -1742,7 +1742,7 @@
 
       COLUMNS.forEach(col => {
         const colCards = getFilteredCards(col.id);
-        const isOverWip = col.wip > 0 && colCards.length > col.wip;
+        const isOverWip = isWipExceeded(col, col.id);
 
         const colEl = document.createElement('div');
         colEl.className = 'column';
@@ -1817,19 +1817,14 @@
       el.ondragend = () => el.classList.remove('dragging');
       el.onclick = () => openCardDetail(card.id);
 
-      const checkDone = card.checklist.filter(i => i.done).length;
-      const checkTotal = card.checklist.length;
-      const pct = checkTotal > 0 ? (checkDone / checkTotal * 100) : 0;
+      const { done: checkDone, total: checkTotal, pct } = getChecklistProgress(card.checklist);
       const dueClass = getDueClass(card.due);
       const dueFormatted = formatDate(card.due);
 
       el.innerHTML = `
     <div class="card-priority-bar ${card.priority}"></div>
     <div class="card-labels">
-      ${card.labels.map(l => {
-        const lb = LABELS.find(x => x.id === l);
-        return lb ? `<span class="label ${lb.class}">${lb.name}</span>` : '';
-      }).join('')}
+      ${renderLabels(card.labels)}
       ${card.projectCode ? `<span class="card-project-code">${escHtml(card.projectCode)}</span>` : ''}
     </div>
     <div class="card-title">${escHtml(card.title)}</div>
@@ -1841,10 +1836,7 @@
     </div>` : ''}
     <div class="card-footer">
       <div class="card-assignees">
-        ${card.assignees.map(a => {
-        const m = TEAM.find(t => t.id === a);
-        return m ? `<div class="avatar" style="background:${m.color}" title="${escHtml(m.name)}">${escHtml(m.name[0])}</div>` : '';
-      }).join('')}
+        ${renderAssigneeAvatars(card.assignees)}
       </div>
       <div class="card-meta">
         ${card.comments > 0 ? `<span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>${card.comments}</span>` : ''}
@@ -1856,13 +1848,46 @@
       return el;
     }
 
+    // ====== HELPERS: LOOKUPS & RENDERING ======
+    function findColumn(columnId) {
+      return COLUMNS.find(c => c.id === columnId);
+    }
+
+    function findTeamMember(memberId) {
+      return TEAM.find(t => t.id === memberId);
+    }
+
+    function renderLabels(labelIds) {
+      return labelIds.map(l => {
+        const lb = LABELS.find(x => x.id === l);
+        return lb ? `<span class="label ${lb.class}">${lb.name}</span>` : '';
+      }).join('');
+    }
+
+    function renderAssigneeAvatars(assigneeIds) {
+      return assigneeIds.map(a => {
+        const m = findTeamMember(a);
+        return m ? `<div class="avatar" style="background:${m.color}" title="${escHtml(m.name)}">${escHtml(m.name[0])}</div>` : '';
+      }).join('');
+    }
+
+    function renderAssigneeNames(assigneeIds) {
+      return assigneeIds.map(a => escHtml(findTeamMember(a)?.name || a)).join(', ') || '—';
+    }
+
+    function getChecklistProgress(checklist) {
+      const done = checklist.filter(i => i.done).length;
+      const total = checklist.length;
+      return { done, total, pct: total > 0 ? done / total * 100 : 0 };
+    }
+
     // ====== HELPERS: WIP ======
     function getColumnCards(columnId, excludeId = null) {
       return cards.filter(c => c.column === columnId && (!excludeId || c.id !== excludeId));
     }
 
     function isWipExceeded(col, columnId, excludeId = null) {
-      return col.wip > 0 && getColumnCards(columnId, excludeId).length >= col.wip;
+      return col.wip > 0 && getColumnCards(columnId, excludeId).length > col.wip;
     }
 
     // ====== DRAG & DROP ======
@@ -1875,7 +1900,7 @@
       const card = cards.find(c => c.id === cardId);
       if (!card) return;
 
-      const col = COLUMNS.find(c => c.id === columnId);
+      const col = findColumn(columnId);
       if (isWipExceeded(col, columnId) && card.column !== columnId) {
         toast(`⚠️ Límite WIP alcanzado en "${col.title}" (máx: ${col.wip})`);
         return;
@@ -2017,8 +2042,8 @@
       const column = document.getElementById('m-column').value;
 
       // Check WIP
-      const col = COLUMNS.find(c => c.id === column);
-      if (isWipExceeded(col, column, existingId || null)) {
+      const col = findColumn(column);
+      if (isWipExceeded(col, column, existingId)) {
         toast(`⚠️ Límite WIP alcanzado en "${col.title}" (máx: ${col.wip})`);
         return;
       }
@@ -2278,7 +2303,7 @@
         archiveReason: reason,
         archiveNote: document.getElementById('arch-note')?.value?.trim() || '',
         columnAtArchive: card.column,
-        columnNameAtArchive: COLUMNS.find(c => c.id === card.column)?.title || card.column,
+        columnNameAtArchive: findColumn(card.column)?.title || card.column,
       };
 
       firestoreArchiveCard(archivedCard);
@@ -2313,7 +2338,7 @@
     </div>
     <div class="archive-search">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-      <input type="text" placeholder="Buscar en archivo..." oninput="renderArchive()">
+      <input type="text" placeholder="Buscar en archivo..." value="${escHtml(archiveSearch)}" oninput="renderArchive()">
     </div>
     ${filtered.length === 0 ? `
       <div class="archive-empty">
@@ -2326,19 +2351,15 @@
         ${filtered.map(card => {
         const archDate = new Date(card.archivedAt);
         const dateStr = archDate.toLocaleDateString('es', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-        const checkDone = card.checklist.filter(i => i.done).length;
-        const checkTotal = card.checklist.length;
-        const pct = checkTotal > 0 ? Math.round(checkDone / checkTotal * 100) : 0;
+        const { done: checkDone, total: checkTotal, pct: pctRaw } = getChecklistProgress(card.checklist);
+        const pct = Math.round(pctRaw);
 
         return `
           <div class="archive-item" id="arch-${card.id}">
             <div class="archive-item-header" onclick="toggleArchiveDetail('${card.id}')">
               <span class="archive-expand-icon" id="arch-icon-${card.id}">▶</span>
               <div class="card-labels" style="margin:0">
-                ${card.labels.map(l => {
-          const lb = LABELS.find(x => x.id === l);
-          return lb ? `<span class="label ${lb.class}">${lb.name}</span>` : '';
-        }).join('')}
+                ${renderLabels(card.labels)}
               </div>
               <span class="archive-item-title">${card.projectCode ? `<span style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);margin-right:8px;letter-spacing:0.5px">${escHtml(card.projectCode)}</span>` : ''}${escHtml(card.title)}</span>
               <div class="archive-item-meta">
@@ -2363,7 +2384,7 @@
                 </div>
                 <div class="archive-detail-field">
                   <label>Asignados</label>
-                  <span class="value">${card.assignees.map(a => TEAM.find(t => t.id === a)?.name || a).join(', ') || '—'}</span>
+                  <span class="value">${renderAssigneeNames(card.assignees)}</span>
                 </div>
                 <div class="archive-detail-field">
                   <label>Fecha límite</label>
