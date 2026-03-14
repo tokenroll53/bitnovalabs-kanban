@@ -1713,12 +1713,14 @@
     ];
 
     const TEAM = [
-      { id: 'ana', name: 'Ana', color: '#3b82f6' },
-      { id: 'carlos', name: 'Carlos', color: '#10b981' },
-      { id: 'maria', name: 'María', color: '#f59e0b' },
-      { id: 'luis', name: 'Luis', color: '#8b5cf6' },
-      { id: 'sofia', name: 'Sofía', color: '#ec4899' },
-      { id: 'pedro', name: 'Pedro', color: '#06b6d4' },
+      { id: 'gabriel', name: 'Gabriel', color: '#3b82f6' },
+      { id: 'nasser', name: 'Nasser', color: '#10b981' },
+      { id: 'erik', name: 'Erik', color: '#f59e0b' },
+      { id: 'gasm', name: 'Gasm', color: '#8b5cf6' },
+      { id: 'alex', name: 'Alex', color: '#ec4899' },
+      { id: 'choshi', name: 'Choshi', color: '#06b6d4' },
+      { id: 'ariel', name: 'Ariel', color: '#f97316' },
+      { id: 'mario', name: 'Mario', color: '#14b8a6' },
     ];
 
     const PRIORITIES = ['urgent', 'high', 'medium', 'low'];
@@ -1984,7 +1986,7 @@
         <div class="checklist-items" id="m-checklist">
           ${c.checklist.map((item, i) => `
             <div class="checklist-item">
-              <input type="checkbox" ${item.done ? 'checked' : ''} data-idx="${i}">
+              <input type="checkbox" ${item.done ? 'checked' : ''} data-idx="${i}" onchange="this.nextElementSibling.classList.toggle('done',this.checked)">
               <span class="${item.done ? 'done' : ''}">${escHtml(item.text)}</span>
               <button class="remove-item" onclick="this.parentElement.remove()">✕</button>
             </div>
@@ -2023,7 +2025,7 @@
       const container = document.getElementById('m-checklist');
       const div = document.createElement('div');
       div.className = 'checklist-item';
-      div.innerHTML = `<input type="checkbox"><span>${escHtml(text)}</span><button class="remove-item" onclick="this.parentElement.remove()">✕</button>`;
+      div.innerHTML = `<input type="checkbox" onchange="this.nextElementSibling.classList.toggle('done',this.checked)"><span>${escHtml(text)}</span><button class="remove-item" onclick="this.parentElement.remove()">✕</button>`;
       container.appendChild(div);
       input.value = '';
     }
