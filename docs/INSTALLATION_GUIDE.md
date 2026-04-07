@@ -1,231 +1,132 @@
-# Bitnova Labs — Kanban PWA
+# Bitnova Labs — Kanban
 
-## Guía de Instalación y Configuración Firebase
-
----
-
-### Descripción
-
-Tablero Kanban colaborativo para desarrollo de software y venta de servicios de Bitnova Labs. Aplicación web progresiva (PWA) con sincronización en tiempo real entre dispositivos, autenticación con Google y funcionalidad offline.
-
-### Archivos del Proyecto
-
-| Archivo | Descripción |
-|---|---|
-| `index.html` | Aplicación completa (interfaz, estilos, lógica, Firebase) |
-| `manifest.json` | Configuración PWA (nombre, iconos, colores) |
-| `sw.js` | Service Worker para caché y modo offline |
-| `icon-192.png` | Icono de la app 192×192px |
-| `icon-512.png` | Icono de la app 512×512px |
-
-### Estructura del Repositorio
-
-```
-bitnova-kanban/
-├── index.html
-├── manifest.json
-├── sw.js
-├── icon-192.png
-├── icon-512.png
-└── INSTALLATION_GUIDE.md
-```
+## Installation & Deployment Guide
 
 ---
 
-## PASO 1: Crear Proyecto en Firebase
+## Project Files
 
-1. Ve a [console.firebase.google.com](https://console.firebase.google.com).
-2. Haz clic en **Agregar proyecto**.
-3. Nombre del proyecto: `bitnova-kanban` (o el que prefieras).
-4. Deshabilita Google Analytics si no lo necesitás (opcional).
-5. Haz clic en **Crear proyecto** y espera que se configure.
-
----
-
-## PASO 2: Configurar Autenticación (Google Login)
-
-1. En la consola de Firebase, ve a **Authentication** (menú lateral).
-2. Haz clic en **Comenzar**.
-3. En la pestaña **Sign-in method**, haz clic en **Google**.
-4. Activa el toggle **Habilitar**.
-5. Selecciona un **correo de soporte** (tu email).
-6. Haz clic en **Guardar**.
+| File | Description |
+|------|-------------|
+| `index.html` | Full application — UI, styles, logic, Firebase integration |
+| `manifest.json` | PWA config (name, icons, colors, start URL) |
+| `sw.js` | Service Worker for offline cache and sync |
+| `firestore.rules` | Firestore security rules — must be deployed to Firebase |
+| `icon-192.png` | App icon 192×192px |
+| `icon-512.png` | App icon 512×512px |
 
 ---
 
-## PASO 3: Crear Base de Datos Firestore
+## Step 1 — Configure Firebase
 
-1. En la consola de Firebase, ve a **Firestore Database** (menú lateral).
-2. Haz clic en **Crear base de datos**.
-3. Selecciona **Iniciar en modo de prueba** (lo aseguraremos después).
-4. Elige la ubicación más cercana (ej: `us-central1` o `southamerica-east1`).
-5. Haz clic en **Habilitar**.
+Follow the full Firebase setup guide before deploying:
 
-### Reglas de Seguridad (recomendado)
+**[→ docs/FIREBASE_SETUP_GUIDE.md](./FIREBASE_SETUP_GUIDE.md)**
 
-Una vez creada la base de datos, ve a la pestaña **Reglas** y reemplaza el contenido con:
+That guide covers:
+- Creating the Firebase project and registering the web app
+- Updating credentials in `index.html`
+- Enabling Email/Password, Email link, and Google authentication
+- Creating the Firestore database and deploying security rules
+- Bootstrapping the first admin account
 
-```
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /cards/{cardId} {
-      allow read, write: if request.auth != null;
-    }
-    match /archivedCards/{cardId} {
-      allow read, write: if request.auth != null;
-    }
-  }
-}
-```
-
-Haz clic en **Publicar**.
+Complete all steps in that guide before proceeding.
 
 ---
 
-## PASO 4: Registrar la App Web
+## Step 2 — Deploy to GitHub Pages
 
-1. En la consola de Firebase, ve a **Configuración del proyecto** (ícono de engranaje).
-2. Baja hasta la sección **Tus apps**.
-3. Haz clic en el ícono **Web** (`</>`).
-4. Nombre: `Bitnova Kanban`.
-5. **NO** marques Firebase Hosting (usaremos GitHub Pages).
-6. Haz clic en **Registrar app**.
-7. Firebase te mostrará un bloque de configuración como este:
+1. Create a repository at [github.com/new](https://github.com/new).
+   - Name it `bitnova-kanban` (or any name you prefer).
+   - Set visibility to **Public** (GitHub Pages requires this on the free plan).
 
-```javascript
-const firebaseConfig = {
-  apiKey: "AIzaSyB1234567890abcdefg",
-  authDomain: "bitnova-kanban.firebaseapp.com",
-  projectId: "bitnova-kanban",
-  storageBucket: "bitnova-kanban.appspot.com",
-  messagingSenderId: "123456789012",
-  appId: "1:123456789012:web:abc123def456"
-};
-```
+2. Push all project files to the `main` branch.
 
-8. **Copia estos valores.** Los necesitarás en el siguiente paso.
+3. In the repository, go to **Settings** → **Pages**.
+   - Source: **Deploy from a branch**
+   - Branch: `main`
+   - Folder: `/ (root)`
+   - Click **Save**.
+
+4. GitHub Pages will build and deploy within 1–2 minutes. Your app URL will be:
+   ```
+   https://your-username.github.io/bitnova-kanban/
+   ```
+
+5. Make sure this domain is added to Firebase Authorized Domains (covered in Step 5 of the Firebase guide).
 
 ---
 
-## PASO 5: Configurar las Credenciales en la App
+## Step 3 — Verify the deployment
 
-1. Abre `index.html` en un editor de texto.
-2. Busca la sección `FIREBASE_CONFIG`:
+After deploying, run through this checklist:
 
-```javascript
-const FIREBASE_CONFIG = {
-  apiKey: "TU_API_KEY",
-  authDomain: "TU_PROYECTO.firebaseapp.com",
-  projectId: "TU_PROYECTO",
-  storageBucket: "TU_PROYECTO.appspot.com",
-  messagingSenderId: "123456789",
-  appId: "TU_APP_ID"
-};
-```
-
-3. Reemplaza cada valor con los que copiaste de Firebase.
-4. Guarda el archivo.
-
-> **Nota sobre seguridad:** Estas credenciales son de configuración de cliente, no son secretas. La seguridad real está en las reglas de Firestore (Paso 3) que solo permiten acceso a usuarios autenticados.
+- [ ] App loads at the GitHub Pages URL
+- [ ] Sign-in screen appears (not the board)
+- [ ] Google Sign-In works for an invited user
+- [ ] Email link sign-in works (send a test invitation from the Admin panel)
+- [ ] Board loads after sign-in
+- [ ] Creating a card saves and persists after page refresh
+- [ ] Uninvited user is blocked with the invitation-only message
+- [ ] Admin panel is visible for the admin account and hidden for regular users
 
 ---
 
-## PASO 6: Autorizar el Dominio
+## How the access system works
 
-1. En Firebase Console → **Authentication** → **Settings** → pestaña **Authorized domains**.
-2. Agrega tu dominio de GitHub Pages: `tu-usuario.github.io`
-3. Si usás un dominio personalizado, agrégalo también.
-4. `localhost` ya viene autorizado por defecto.
+The app uses an **invitation-only** model. There is no open registration.
 
----
+1. The **admin** opens the Admin panel inside the app and enters a team member's email.
+2. The team member receives an **invitation email** with a sign-in link.
+3. On first click, they land on a **setup screen** to choose a display name and set a password.
+4. From then on, they log in with **email + password** (or Google if they prefer).
+5. Their profile is automatically added to the team list and they become assignable to cards.
 
-## PASO 7: Desplegar en GitHub Pages
-
-1. Crea un repositorio en [github.com/new](https://github.com/new) con nombre `bitnova-kanban` y visibilidad **Public**.
-
-2. Sube los 5 archivos a la raíz del repositorio.
-
-3. Ve a **Settings** → **Pages** → Source: rama `main`, carpeta `/ (root)` → **Save**.
-
-4. En 1-2 minutos tu app estará en: `https://tu-usuario.github.io/bitnova-kanban/`
-
-5. Asegurate de que este dominio esté autorizado en Firebase (Paso 6).
+To remove access, the admin clicks **Revoke** next to the user in the Admin panel. The user is blocked on their next page load.
 
 ---
 
-## PASO 8: Primera Carga de Datos
+## How sync works
 
-La primera vez que inicies sesión, el tablero estará vacío. Tenés dos opciones:
+**Real-time:** changes made by one user (new card, move, edit) appear instantly in all other open browser sessions without refreshing.
 
-**Opción A — Cargar datos de demo:**
-Abre la consola del navegador (F12 → Console) y ejecuta:
-```javascript
-seedDemoData();
-```
-
-**Opción B — Empezar desde cero:**
-Creá tarjetas directamente con el botón "Nueva Tarjeta".
+**Offline:** if the connection is lost, the app continues working. Changes are queued locally and sync automatically when the connection returns. The header indicator shows current sync state.
 
 ---
 
-## Cómo Funciona la Sincronización
+## Installing as a native app (PWA)
 
-### Tiempo real
-Cuando alguien mueve, crea o edita una tarjeta, el cambio aparece instantáneamente en todos los dispositivos conectados. No se necesita refrescar la página.
-
-### Modo offline
-Si perdés conexión, la app sigue funcionando. Los cambios se guardan localmente y se sincronizan al recuperar conexión. El indicador en el header muestra el estado: verde = sincronizado, ámbar = sin conexión, rojo = error.
-
-### Multi-usuario
-Cada usuario inicia sesión con su cuenta de Google. Todos ven el mismo tablero en tiempo real.
+| Platform | Instructions |
+|----------|-------------|
+| Chrome / Edge (desktop) | Click the install icon (⊕) in the browser address bar |
+| Android Chrome | Menu (⋮) → **Install app** or **Add to home screen** |
+| iPhone / iPad Safari | Share button → **Add to Home Screen** |
 
 ---
 
-## Instalación como App Nativa
+## Troubleshooting
 
-### En PC (Chrome / Edge)
-Abre la URL → clic en el ícono de instalación (⊕) en la barra de direcciones.
-
-### En Android (Chrome)
-Abre la URL → menú ⋮ → **Instalar app** o **Agregar a pantalla de inicio**.
-
-### En iPhone / iPad (Safari)
-Abre la URL → botón **Compartir** → **Agregar a pantalla de inicio**.
-
----
-
-## Personalización
-
-### Modificar columnas
-Busca el array `COLUMNS` en `index.html` y edita nombres, colores y límites WIP.
-
-### Modificar equipo
-Busca el array `TEAM` para agregar o editar miembros.
-
-### Modificar etiquetas
-Busca el array `LABELS` para editar categorías.
+| Problem | Solution |
+|---------|---------|
+| "auth/unauthorized-domain" | Add your domain in Firebase → Authentication → Settings → Authorized domains |
+| "Missing or insufficient permissions" | Deploy the Firestore rules — see `FIREBASE_SETUP_GUIDE.md` Step 7 |
+| Admin button not visible | Verify your email is in the `admins` Firestore collection — see `FIREBASE_SETUP_GUIDE.md` Step 8 |
+| Invitation email not received | Check spam; verify Email link is enabled in Firebase Auth settings |
+| Cards not saving | Verify Firebase credentials in `index.html` match your project |
+| App not installing as PWA | URL must use HTTPS — GitHub Pages provides this automatically |
 
 ---
 
-## Solución de Problemas
+## Firebase free plan limits
 
-| Problema | Solución |
-|---|---|
-| "Error: auth/unauthorized-domain" | Agregar tu dominio en Firebase → Authentication → Settings → Authorized domains |
-| La ventana de login no abre | Habilitar popups para tu sitio en el navegador |
-| No se sincronizan los datos | Verificar que `FIREBASE_CONFIG` tenga los valores correctos |
-| Indicador rojo de sync | Revisar la consola del navegador (F12) |
-| Tablero vacío al iniciar | Normal la primera vez. Ejecuta `seedDemoData()` en consola o crea tarjetas manualmente |
-| "Missing or insufficient permissions" | Verificar y publicar las reglas de Firestore (Paso 3) |
-| La app no se instala como PWA | La URL debe usar HTTPS. GitHub Pages lo provee automáticamente |
+The Spark (free) plan includes:
+- Unlimited authentication
+- 1 GB Firestore storage
+- 50,000 reads / day
+- 20,000 writes / day
+
+For a team of up to 50 people with typical Kanban usage, the free plan is more than sufficient.
 
 ---
 
-## Costos de Firebase (Plan Gratuito)
-
-El plan Spark (gratuito) incluye: autenticación ilimitada con Google, 1 GB almacenamiento en Firestore, 50,000 lecturas/día y 20,000 escrituras/día. Para un equipo de hasta ~20 personas, es más que suficiente.
-
----
-
-*Bitnova Labs © 2026*
+*Last updated: 2026-04-07*

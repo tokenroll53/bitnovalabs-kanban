@@ -2,6 +2,8 @@
 
 Pre-deployment security audit results and remediation guide.
 
+*Last updated: 2026-04-07*
+
 ---
 
 ## Status Overview
@@ -12,167 +14,103 @@ Pre-deployment security audit results and remediation guide.
 | 2 | XSS: team member names unescaped | Medium | ✅ Fixed in code |
 | 3 | Missing input length limits | Medium | ✅ Fixed in code |
 | 4 | Missing Content Security Policy | High | ✅ Fixed in code |
-| 5 | Missing clickjacking protection | Medium | ✅ Fixed in code (CSP frame-ancestors) |
-| 6 | Missing Firestore security rules file | Critical | ✅ File created — needs deploying |
-| 7 | Firebase placeholder credentials | Critical | ⚠️ Requires your action |
-| 8 | Missing Subresource Integrity on CDN scripts | High | ⚠️ Requires your action |
+| 5 | Clickjacking protection (`frame-ancestors`) | Medium | ⚠️ Partial — see note below |
+| 6 | Missing Firestore security rules file | Critical | ✅ File updated — needs deploying |
+| 7 | Firebase credentials | Critical | ✅ Real credentials in place — verify before deploy |
+| 8 | Missing Subresource Integrity on CDN scripts | High | ⚠️ Optional for this release — steps below |
 
 ---
 
-## Items Already Fixed in Code
+## Items Fixed in Code
 
 No action needed. These were patched directly in `index.html`:
 
-- **XSS** — `card.title` and `card.desc` are now passed through `escHtml()` before being rendered into the DOM. A malicious card title like `<img src=x onerror="alert('XSS')">` will display as text, not execute.
+- **XSS** — `card.title` and `card.desc` are passed through `escHtml()` before rendering. Malicious input displays as text, not code.
 - **XSS** — Team member names are defensively escaped in all render paths.
-- **Input limits** — All form fields now have `maxlength`: title (200), description (3000), project code (20), checklist items (200), archive note (500).
-- **CSP** — A Content Security Policy meta tag was added to `<head>`. It restricts scripts to `self` and the Firebase CDN, restricts connections to Firebase domains, and blocks the app from being embedded in iframes.
+- **Input limits** — All form fields have `maxlength`: title (200), description (3000), project code (20), checklist items (200), archive note (500).
+- **CSP** — A Content Security Policy meta tag is in `<head>`. It restricts scripts to `self` and the Firebase CDN, restricts connections to Firebase domains, and includes `frame-ancestors 'none'`.
+
+---
+
+## Note on Clickjacking Protection (frame-ancestors)
+
+`frame-ancestors 'none'` has been added to the CSP meta tag in `index.html`. **However**, browsers do not enforce `frame-ancestors` when it appears in a `<meta>` tag — this directive is only respected when sent as an HTTP response header (`Content-Security-Policy: frame-ancestors 'none'`).
+
+**GitHub Pages does not support custom HTTP response headers**, so a fully enforced clickjacking block is not achievable on this hosting platform without additional tooling.
+
+**Current state:** the meta tag signals intent and provides partial protection in some environments. The risk is low for an invitation-only internal tool where the URL is not publicly advertised.
+
+**To fully fix:** migrate hosting to a platform that supports custom headers (Cloudflare Pages, Netlify, Vercel), or add a GitHub Actions deployment step that wraps the site in a Cloudflare Worker with headers applied. This is tracked as a post-launch item.
 
 ---
 
 ## Step 1 — Deploy Firestore Security Rules (Critical)
 
-Without this, anyone who discovers your Firebase config can read and write all your cards directly via the Firestore API, bypassing the login screen entirely.
-
-The file `firestore.rules` is already written and ready. You just need to deploy it.
+`firestore.rules` has been updated to cover all collections: `cards`, `archivedCards`, `admins`, `invites`, `team`. Without deploying this file, anyone with your Firebase config can read and write data directly via the Firestore API, bypassing the login screen.
 
 ### Option A — Firebase Console (no CLI needed)
 
 1. Go to [console.firebase.google.com](https://console.firebase.google.com)
-2. Open your project
-3. In the left menu, click **Firestore Database**
-4. Click the **Rules** tab
-5. Replace the entire content with:
-
-```
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-
-    match /cards/{cardId} {
-      allow read, write: if request.auth != null;
-    }
-
-    match /archivedCards/{cardId} {
-      allow read, write: if request.auth != null;
-    }
-
-    match /{document=**} {
-      allow read, write: if false;
-    }
-  }
-}
-```
-
-6. Click **Publish**
-7. Verify: try accessing `https://firestore.googleapis.com/v1/projects/YOUR_PROJECT_ID/databases/(default)/documents/cards` in a browser — you should get a `403 Permission Denied` error.
+2. Open your project → **Firestore Database** → **Rules** tab
+3. Replace the entire content with the contents of `firestore.rules`
+4. Click **Publish**
+5. Verify: access `https://firestore.googleapis.com/v1/projects/YOUR_PROJECT_ID/databases/(default)/documents/cards` in a browser — expect a `403 Permission Denied`.
 
 ### Option B — Firebase CLI
 
 ```bash
-# Install Firebase CLI (one time)
-npm install -g firebase-tools
-
-# Login
-firebase login
-
-# Initialize in the project folder (select Firestore when asked)
-cd /path/to/bitnovalabs-kanbas
-firebase init firestore
-
-# Deploy only the rules
 firebase deploy --only firestore:rules
 ```
 
 ---
 
-## Step 2 — Replace Firebase Placeholder Credentials (Critical)
+## Step 2 — Bootstrap the First Admin (Required for invitation system)
 
-The app currently has fake credentials that will prevent it from connecting to Firebase at all.
+The invitation system requires at least one admin document in Firestore before the app can send invites.
 
-### 2.1 Get your real config
-
-1. Go to [console.firebase.google.com](https://console.firebase.google.com)
-2. Open your project
-3. Click the **gear icon** → **Project settings**
-4. Scroll down to **Your apps** → click your web app
-5. Copy the `firebaseConfig` object
-
-### 2.2 Update index.html
-
-Open `index.html` and find this block (around line 2500):
-
-```javascript
-const FIREBASE_CONFIG = {
-  apiKey: "AIzaSyB1234567890abcdefg",
-  authDomain: "bitnova-kanban.firebaseapp.com",
-  projectId: "bitnova-kanban",
-  storageBucket: "bitnova-kanban.appspot.com",
-  messagingSenderId: "123456789012",
-  appId: "1:123456789012:web:abc123def456"
-};
-```
-
-Replace the values with your real ones. Example:
-
-```javascript
-const FIREBASE_CONFIG = {
-  apiKey: "AIzaSyC_YOUR_REAL_KEY_HERE",
-  authDomain: "your-real-project.firebaseapp.com",
-  projectId: "your-real-project",
-  storageBucket: "your-real-project.appspot.com",
-  messagingSenderId: "987654321098",
-  appId: "1:987654321098:web:realappidhere"
-};
-```
-
-> **Note on API key exposure:** Firebase web API keys are not secrets — they identify your project but grant no privileged access. Security is enforced by Firestore rules (Step 1) and Firebase Authentication. Never put a private server key or service account key in client-side code.
-
-### 2.3 Authorize your domain
-
-After deploying to GitHub Pages (or any host), add your domain to Firebase:
-
-1. Firebase Console → **Authentication** → **Settings** → **Authorized domains**
-2. Click **Add domain**
-3. Enter your domain, e.g. `your-username.github.io`
+1. Firebase Console → **Firestore Database** → create collection `admins`
+2. Add a document with the admin's email address as the **Document ID** (e.g. `admin@yourdomain.com`)
+3. The document body can be empty, or add `{ "grantedAt": <timestamp>, "grantedBy": "bootstrap" }` for record-keeping
+4. This is a one-time step. All subsequent admin management happens inside the app.
 
 ---
 
-## Step 3 — Add Subresource Integrity to Firebase CDN Scripts (High)
+## Step 3 — Enable Auth Providers (Required)
 
-SRI ensures the Firebase scripts haven't been tampered with in transit. Without it, a compromised CDN or network attack could inject malicious code.
+Firebase Console → **Authentication** → **Sign-in method**:
 
-### 3.1 Generate the hashes
+1. Enable **Email/Password**
+2. Under Email/Password settings, also enable **Email link (passwordless sign-in)**
+3. Enable **Google**
+4. Under **Authorized domains**, add your GitHub Pages domain (e.g. `yourusername.github.io`)
 
-Run these commands in your terminal:
+---
+
+## Step 4 — Verify Firebase Credentials (Critical)
+
+Check that `index.html` contains your real Firebase project credentials, not placeholder values. The `apiKey`, `authDomain`, `projectId`, `messagingSenderId`, and `appId` must all match your Firebase project.
+
+> **Note:** Firebase web API keys are not secrets — they identify your project but grant no privileged access. Security is enforced by Firestore rules (Step 1) and Firebase Authentication. Never put a private server key or service account key in client-side code.
+
+---
+
+## Step 5 — Add Subresource Integrity to Firebase CDN Scripts (Recommended)
+
+SRI ensures the Firebase scripts loaded from the CDN have not been tampered with. Optional for this release.
+
+### Generate the hashes
 
 ```bash
 curl -s https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js | openssl dgst -sha384 -binary | openssl enc -base64 -A
-
 curl -s https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js | openssl dgst -sha384 -binary | openssl enc -base64 -A
-
 curl -s https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js | openssl dgst -sha384 -binary | openssl enc -base64 -A
 ```
 
-Each command outputs a base64 hash. Copy each one.
-
-### 3.2 Update the script tags in index.html
-
-Find the three Firebase script tags near the bottom of `<head>` and add the integrity attribute to each:
+### Add integrity attributes to the script tags in index.html
 
 ```html
 <script
   src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"
-  integrity="sha384-PASTE_HASH_HERE"
-  crossorigin="anonymous"></script>
-
-<script
-  src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"
-  integrity="sha384-PASTE_HASH_HERE"
-  crossorigin="anonymous"></script>
-
-<script
-  src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"
   integrity="sha384-PASTE_HASH_HERE"
   crossorigin="anonymous"></script>
 ```
@@ -181,41 +119,35 @@ Find the three Firebase script tags near the bottom of `<head>` and add the inte
 
 ## Deployment Go/No-Go Checklist
 
-Before going live, verify each item:
-
-### Security
+### Required before go-live
 - [ ] Firestore rules deployed and tested (Step 1)
-- [ ] Real Firebase credentials in `index.html` (Step 2)
-- [ ] Deployment domain added to Firebase Authorized domains (Step 2.3)
-- [ ] SRI hashes added to Firebase script tags (Step 3) — recommended but optional for internal tools
+- [ ] First admin document created in Firestore (Step 2)
+- [ ] Email/Password, Email link, and Google auth enabled in Firebase Console (Step 3)
+- [ ] GitHub Pages domain added to Firebase Authorized domains (Step 3)
+- [ ] Real Firebase credentials confirmed in `index.html` (Step 4)
 
-### Functional test after deploy
-- [ ] Login with Google works
+### Recommended
+- [ ] SRI hashes added to Firebase script tags (Step 5)
+
+### Functional tests after deploy
+- [ ] Admin can send an invitation from within the app
+- [ ] Invitee receives the email and setup screen appears on first click
+- [ ] Subsequent login with email + password works
+- [ ] Google login works for invited users
+- [ ] Uninvited user is blocked (any sign-in method)
 - [ ] Creating a card saves to Firestore
 - [ ] Moving a card between columns persists after page refresh
 - [ ] Archiving a card removes it from the board and shows it in the Archive view
 - [ ] Offline mode: disable network in DevTools → make a change → re-enable → change syncs
-- [ ] Try entering `<script>alert('xss')</script>` as a card title → should display as text, not execute
-- [ ] Open app in a second browser tab/account → changes from tab 1 appear in tab 2 in real time
-
-### XSS verification
-- Create a card with this title: `<img src=x onerror="alert('XSS')">`
-- Expected result: the text is shown literally on the card, no alert dialog appears
-- If an alert dialog appears, stop deployment and report the issue
+- [ ] XSS test: create a card with title `<img src=x onerror="alert('XSS')">` → should display as text, no alert
 
 ---
 
-## Known Acceptable Limitations
-
-These are intentional trade-offs for a simple internal team tool:
+## Known Limitations
 
 | Item | Notes |
 |------|-------|
-| Inline `onclick` handlers | Prevents a strict CSP. Low risk for an internal app with trusted users. |
-| `confirm()` for delete actions | Native browser dialog, can be suppressed in some contexts. Acceptable for internal use. |
-| Full board re-render on data change | Performance trade-off for simplicity. Acceptable for small teams. |
-| All authenticated users share one board | No per-user or role-based access. By design for this app. |
-
----
-
-*Last updated: 2026-03-13*
+| `frame-ancestors` not enforced | GitHub Pages does not support HTTP headers; meta tag version is ignored by browsers. Low risk for invitation-only access. |
+| `'unsafe-inline'` in CSP | Required by inline `onclick` handlers. Scheduled for removal in P3 refactor. |
+| `confirm()` for delete actions | Native browser dialog, acceptable for internal use. |
+| Full board re-render on data change | Performance trade-off for simplicity. Acceptable at current scale. |
