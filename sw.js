@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kanbanflow-v2';
+const CACHE_NAME = 'kanbanflow-v3';
 const BASE = '/bitnovalabs-kanban';
 const ASSETS = [
   BASE + '/',
