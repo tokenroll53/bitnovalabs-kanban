@@ -3285,10 +3285,26 @@
           await db.collection('invites').doc(_setupUser.email).update({ status: 'accepted' });
         } catch(e) { /* admin users may not have invite doc */ }
 
-        // Reload auth state to proceed to board
-        // onAuthStateChanged will fire again with updated user
+        // onAuthStateChanged does NOT re-fire after updateProfile — navigate manually
+        const user = auth.currentUser;
         _setupUser = null;
         _setupNeedsPassword = false;
+
+        try {
+          const adminDoc = await db.collection('admins').doc(user.email).get();
+          if (adminDoc.exists) document.getElementById('adminBtn').style.display = 'inline-flex';
+        } catch(e) { /* not admin */ }
+
+        await loadTeam();
+        document.getElementById('setupOverlay').classList.add('hidden');
+        document.getElementById('loginOverlay').classList.add('hidden');
+        document.getElementById('appHeader').style.display = '';
+        document.getElementById('appToolbar').style.display = '';
+        document.getElementById('userAvatar').src = user.photoURL || '';
+        document.getElementById('userName').textContent = user.displayName || user.email;
+        document.getElementById('userAvatar').alt = user.displayName || '';
+        startFirestoreListeners();
+        toast('👋 Hola, ' + (user.displayName?.split(' ')[0] || 'usuario'));
 
       } catch(err) {
         btn.disabled = false;
