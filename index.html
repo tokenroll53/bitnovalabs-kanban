@@ -2049,6 +2049,9 @@
       </div>
 
       <div id="setupPasswordFields">
+        <p style="font-size:12px;color:var(--text-muted);text-align:left;margin-bottom:14px;">
+          Creá una contraseña para ingresar al app en el futuro con tu correo.
+        </p>
         <div class="setup-field">
           <label for="setupPassword">Contraseña</label>
           <input class="setup-input" type="password" id="setupPassword" placeholder="Mínimo 6 caracteres" autocomplete="new-password">
@@ -2087,6 +2090,23 @@
         <br><br>
         <button class="btn-setup" onclick="goToSignIn()" style="margin-top:0">Ir al inicio de sesión</button>
       </div>
+    </div>
+  </div>
+
+  <!-- EMAIL CONFIRM OVERLAY (for email-link sign-in when email not in localStorage) -->
+  <div class="reset-overlay hidden" id="emailConfirmOverlay">
+    <div class="reset-card">
+      <h2>Confirmá tu correo</h2>
+      <p class="reset-sub">Ingresá el correo al que llegó tu invitación para activar tu cuenta.</p>
+
+      <div class="setup-field">
+        <label for="emailConfirmInput">Tu correo</label>
+        <input class="setup-input" type="email" id="emailConfirmInput" placeholder="tu@email.com"
+          autocomplete="email" onkeydown="if(event.key==='Enter')submitEmailConfirm()">
+      </div>
+
+      <button class="btn-setup" id="emailConfirmBtn" onclick="submitEmailConfirm()">Continuar</button>
+      <div class="setup-error" id="emailConfirmError"></div>
     </div>
   </div>
 
@@ -3166,25 +3186,69 @@
     }
 
     // ---- Email link handler (runs on page load) ----
+    let _pendingEmailLink = null; // holds the URL while waiting for email confirm
+
     function handleEmailLinkSignIn() {
       if (!auth.isSignInWithEmailLink(window.location.href)) return;
-      let email = localStorage.getItem('emailForSignIn');
-      if (!email) {
-        email = window.prompt('Por favor ingresá tu correo para confirmar tu identidad:');
-        if (!email) return;
+
+      const storedEmail = localStorage.getItem('emailForSignIn');
+      if (storedEmail) {
+        completeEmailLinkSignIn(storedEmail);
+      } else {
+        // No email stored — show in-app prompt instead of browser window.prompt()
+        _pendingEmailLink = window.location.href;
+        document.getElementById('loginOverlay').classList.add('hidden');
+        document.getElementById('emailConfirmOverlay').classList.remove('hidden');
+        document.getElementById('emailConfirmInput').focus();
       }
+    }
+    handleEmailLinkSignIn();
+
+    function submitEmailConfirm() {
+      const btn = document.getElementById('emailConfirmBtn');
+      const errEl = document.getElementById('emailConfirmError');
+      const email = document.getElementById('emailConfirmInput').value.trim().toLowerCase();
+
+      errEl.classList.remove('show');
+
+      if (!email || !email.includes('@')) {
+        errEl.textContent = 'Por favor ingresá un correo válido.';
+        errEl.classList.add('show');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Verificando...';
+
+      completeEmailLinkSignIn(email);
+    }
+
+    function completeEmailLinkSignIn(email) {
+      const link = _pendingEmailLink || window.location.href;
       document.getElementById('loginLoading').classList.add('show');
-      auth.signInWithEmailLink(email, window.location.href)
+      auth.signInWithEmailLink(email, link)
         .then(() => {
           localStorage.removeItem('emailForSignIn');
+          document.getElementById('emailConfirmOverlay').classList.add('hidden');
           history.replaceState(null, '', window.location.pathname);
+          _pendingEmailLink = null;
         })
         .catch(err => {
           document.getElementById('loginLoading').classList.remove('show');
-          showLoginError(getAuthError(err.code));
+          // If called from overlay, show error there; otherwise show on login screen
+          const errEl = document.getElementById('emailConfirmError');
+          if (!document.getElementById('emailConfirmOverlay').classList.contains('hidden')) {
+            const btn = document.getElementById('emailConfirmBtn');
+            btn.disabled = false;
+            btn.textContent = 'Continuar';
+            errEl.textContent = getAuthError(err.code);
+            errEl.classList.add('show');
+          } else {
+            document.getElementById('loginOverlay').classList.remove('hidden');
+            showLoginError(getAuthError(err.code));
+          }
         });
     }
-    handleEmailLinkSignIn();
 
     // ---- Google sign-in ----
     function loginWithGoogle() {
