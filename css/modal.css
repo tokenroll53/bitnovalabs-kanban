@@ -1,0 +1,238 @@
+/* Bitnova Kanban — modal */
+.modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity var(--transition-smooth);
+    }
+
+    .modal-overlay.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .modal {
+      width: 680px;
+      max-width: 95vw;
+      max-height: 90vh;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-elevated);
+      overflow-y: auto;
+      transform: translateY(20px) scale(0.97);
+      transition: transform var(--transition-smooth);
+    }
+
+    .modal-overlay.open .modal {
+      transform: translateY(0) scale(1);
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      padding: 24px 24px 16px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .modal-header h2 {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .modal-close {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-sm);
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-close:hover {
+      background: var(--bg-card);
+      color: var(--text-primary);
+    }
+
+    .modal-body {
+      padding: 20px 24px;
+    }
+
+    .modal-section {
+      margin-bottom: 20px;
+    }
+
+    .modal-section-title {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .modal-input,
+    .modal-textarea,
+    .modal-select {
+      width: 100%;
+      padding: 10px 14px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      font-size: 13px;
+      outline: none;
+      transition: var(--transition-fast);
+    }
+
+    .modal-input:focus,
+    .modal-textarea:focus,
+    .modal-select:focus {
+      border-color: var(--accent-blue);
+      box-shadow: var(--shadow-glow-blue);
+    }
+
+    .modal-textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .modal-select option {
+      background: var(--bg-card);
+    }
+
+    .modal-row {
+      display: flex;
+      gap: 12px;
+    }
+
+    .modal-row>* {
+      flex: 1;
+    }
+
+    .modal-labels-picker {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .label-option {
+      padding: 4px 12px;
+      border-radius: 14px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      opacity: 0.4;
+      transition: var(--transition-fast);
+      border: 2px solid transparent;
+    }
+
+    .label-option.selected {
+      opacity: 1;
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .label-option:hover {
+      opacity: 0.8;
+    }
+
+    /* checklist items in modal */
+    .checklist-items {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .checklist-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 8px;
+      border-radius: var(--radius-sm);
+      background: var(--bg-card);
+    }
+
+    .checklist-item input[type="checkbox"] {
+      accent-color: var(--accent-emerald);
+      width: 14px;
+      height: 14px;
+    }
+
+    .checklist-item span {
+      font-size: 12px;
+      flex: 1;
+    }
+
+    .checklist-item span.done {
+      text-decoration: line-through;
+      color: var(--text-muted);
+    }
+
+    .checklist-item .remove-item {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 14px;
+      padding: 2px;
+    }
+
+    .add-checklist-row {
+      display: flex;
+      gap: 6px;
+    }
+
+    .add-checklist-row input {
+      flex: 1;
+      padding: 6px 10px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      font-size: 12px;
+      font-family: var(--font-sans);
+      outline: none;
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      padding: 16px 24px;
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    /* ====== TOAST ====== */
+    .toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 2000;
+    }
+
+    .toast {
+      padding: 12px 20px;
+      border-radius: var(--radius-md);
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-primary);
+      font-size: 13px;
+      box-shadow: var(--shadow-elevated);
+      animation: slideUp 0.3s ease, fadeOut 0.3s ease 2.7s;
+      margin-top: 8px;
+    }

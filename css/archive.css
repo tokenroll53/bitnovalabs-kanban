@@ -1,0 +1,204 @@
+/* Bitnova Kanban — archive */
+.archive-view {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px;
+      display: none;
+    }
+
+    .archive-view.active {
+      display: block;
+    }
+
+    .archive-header-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .archive-header-bar h2 {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .archive-header-bar .archive-count {
+      font-size: 13px;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
+
+    .archive-search {
+      margin-bottom: 16px;
+      max-width: 400px;
+    }
+
+    .archive-empty {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-muted);
+    }
+
+    .archive-empty svg {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 12px;
+      opacity: 0.3;
+    }
+
+    .archive-empty p {
+      font-size: 14px;
+    }
+
+    .archive-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .archive-item {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      transition: var(--transition-fast);
+    }
+
+    .archive-item:hover {
+      border-color: var(--border-active);
+    }
+
+    .archive-item-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 18px;
+      cursor: pointer;
+    }
+
+    .archive-item-header:hover {
+      background: var(--bg-card);
+    }
+
+    .archive-expand-icon {
+      color: var(--text-muted);
+      transition: transform var(--transition-fast);
+      flex-shrink: 0;
+      font-size: 12px;
+    }
+
+    .archive-expand-icon.open {
+      transform: rotate(90deg);
+    }
+
+    .archive-item-title {
+      font-size: 14px;
+      font-weight: 600;
+      flex: 1;
+    }
+
+    .archive-item-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    .archive-item-meta .archive-reason {
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .archive-reason.completed {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--accent-emerald);
+    }
+
+    .archive-reason.suspended {
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--accent-amber);
+    }
+
+    .archive-item-meta .archive-date {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
+
+    .archive-detail {
+      display: none;
+      padding: 0 18px 18px;
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    .archive-detail.open {
+      display: block;
+      padding-top: 16px;
+    }
+
+    .archive-detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .archive-detail-field label {
+      display: block;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .archive-detail-field .value {
+      font-size: 13px;
+      color: var(--text-primary);
+    }
+
+    .archive-detail-desc {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 14px;
+      padding: 10px 14px;
+      background: var(--bg-card);
+      border-radius: var(--radius-sm);
+    }
+
+    .archive-detail-checklist {
+      margin-bottom: 14px;
+    }
+
+    .archive-detail-checklist .ck-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 0;
+      font-size: 12px;
+    }
+
+    .archive-detail-checklist .ck-item .ck-done {
+      color: var(--accent-emerald);
+    }
+
+    .archive-detail-checklist .ck-item .ck-pending {
+      color: var(--text-muted);
+    }
+
+    .archive-detail-checklist .ck-item span.done-text {
+      text-decoration: line-through;
+      color: var(--text-muted);
+    }
+
+    .archive-actions {
+      display: flex;
+      gap: 8px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border-subtle);
+    }

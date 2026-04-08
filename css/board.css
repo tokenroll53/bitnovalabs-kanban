@@ -1,0 +1,155 @@
+/* Bitnova Kanban — board */
+.board-wrapper {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .board {
+      flex: 1;
+      display: flex;
+      gap: 0;
+      overflow-x: auto;
+      overflow-y: hidden;
+      padding: 0;
+    }
+
+    .column {
+      min-width: 300px;
+      max-width: 340px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid var(--border-subtle);
+      background: var(--bg-deep);
+    }
+
+    .column:last-child {
+      border-right: none;
+    }
+
+    .column-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 16px 10px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: var(--bg-deep);
+    }
+
+    .column-indicator {
+      width: 4px;
+      height: 20px;
+      border-radius: 2px;
+    }
+
+    .column-title {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      flex: 1;
+    }
+
+    .column-count {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 22px;
+      height: 22px;
+      padding: 0 6px;
+      border-radius: 11px;
+      background: var(--bg-surface);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    .column-count.over-wip {
+      background: rgba(244, 63, 94, 0.2);
+      color: var(--accent-rose);
+      animation: pulse-warn 2s ease-in-out infinite;
+    }
+
+    .wip-indicator {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-left: 2px;
+    }
+
+    .column-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 4px 10px 60px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .column-body.drag-over {
+      background: rgba(59, 130, 246, 0.04);
+    }
+
+    .swimlane-section {
+      margin-bottom: 6px;
+    }
+
+    .swimlane-header {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 6px;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .swimlane-header .arrow {
+      transition: transform var(--transition-fast);
+      font-size: 10px;
+    }
+
+    .swimlane-header .arrow.collapsed {
+      transform: rotate(-90deg);
+    }
+
+    .swimlane-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    /* ADD CARD */
+    .add-card-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 12px;
+      margin: 4px 10px;
+      border-radius: var(--radius-sm);
+      border: 1px dashed var(--border-subtle);
+      background: none;
+      color: var(--text-muted);
+      font-size: 12px;
+      cursor: pointer;
+      transition: var(--transition-fast);
+    }
+
+    .add-card-btn:hover {
+      border-color: var(--accent-blue);
+      color: var(--accent-blue);
+      background: rgba(59, 130, 246, 0.05);
+    }
+
+    .board-wrapper.hidden {
+      display: none;
+    }

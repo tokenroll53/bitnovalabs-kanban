@@ -1,0 +1,19 @@
+/* Bitnova Kanban — pwa */
+/* PWA install banner */
+    .install-banner {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 14px 24px;
+      background: var(--bg-surface);
+      border-top: 1px solid var(--border-subtle);
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 900;
+    }
+
+    .install-banner.show {
+      display: flex;
+    }

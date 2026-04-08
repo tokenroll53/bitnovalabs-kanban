@@ -1,0 +1,28 @@
+/* Bitnova Kanban — responsive */
+@media (max-width: 768px) {
+      .app-header {
+        padding: 0 12px;
+      }
+
+      .header-nav {
+        display: none;
+      }
+
+      .toolbar {
+        padding: 8px 12px;
+        overflow-x: auto;
+      }
+
+      .column {
+        min-width: 280px;
+      }
+
+      .modal {
+        max-width: 98vw;
+        margin: 8px;
+      }
+
+      .analytics-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
