@@ -1655,6 +1655,55 @@
     .btn-setup:hover { background: #2563eb; }
     .btn-setup:disabled { opacity: 0.5; cursor: not-allowed; }
 
+    /* ====== PASSWORD RESET OVERLAY ====== */
+    .reset-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 6000;
+      background: var(--bg-deep);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .reset-overlay.hidden { display: none; }
+
+    .reset-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xl);
+      padding: 40px 40px 32px;
+      text-align: center;
+      max-width: 420px;
+      width: 90%;
+      box-shadow: var(--shadow-elevated);
+      animation: loginFadeIn 0.4s ease;
+    }
+
+    .reset-card h2 {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .reset-card .reset-sub {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 28px;
+    }
+
+    .reset-success {
+      display: none;
+      margin-top: 16px;
+      padding: 14px;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      border-radius: var(--radius-sm);
+      color: var(--accent-emerald);
+      font-size: 13px;
+    }
+    .reset-success.show { display: block; }
+
     /* ====== LOGIN FORM (email/password) ====== */
     .login-divider {
       display: flex;
@@ -2012,6 +2061,32 @@
 
       <button class="btn-setup" id="setupBtn" onclick="submitSetup()">Comenzar</button>
       <div class="setup-error" id="setupError"></div>
+    </div>
+  </div>
+
+  <!-- PASSWORD RESET SCREEN -->
+  <div class="reset-overlay hidden" id="resetOverlay">
+    <div class="reset-card">
+      <h2>Nueva contraseña</h2>
+      <p class="reset-sub">Ingresá y confirmá tu nueva contraseña</p>
+
+      <div class="setup-field">
+        <label for="resetPassword">Nueva contraseña</label>
+        <input class="setup-input" type="password" id="resetPassword" placeholder="Mínimo 6 caracteres" autocomplete="new-password">
+      </div>
+      <div class="setup-field">
+        <label for="resetPasswordConfirm">Confirmá la contraseña</label>
+        <input class="setup-input" type="password" id="resetPasswordConfirm" placeholder="Repetí la contraseña" autocomplete="new-password">
+      </div>
+
+      <button class="btn-setup" id="resetBtn" onclick="submitPasswordReset()">Guardar contraseña</button>
+
+      <div class="setup-error" id="resetError"></div>
+      <div class="reset-success" id="resetSuccess">
+        ✓ Contraseña actualizada correctamente.
+        <br><br>
+        <button class="btn-setup" onclick="goToSignIn()" style="margin-top:0">Ir al inicio de sesión</button>
+      </div>
     </div>
   </div>
 
@@ -2503,12 +2578,14 @@
       };
 
       if (existingId) {
-        firestoreSaveCard({ id: existingId, ...data });
-        toast('✅ Tarjeta actualizada');
+        firestoreSaveCard({ id: existingId, ...data })
+          .then(() => toast('✅ Tarjeta actualizada'))
+          .catch(err => toast('❌ Error al guardar: ' + err.message));
       } else {
         const newId = 'c' + Date.now();
-        firestoreSaveCard({ id: newId, ...data, comments: 0, attachments: 0, created: new Date().toISOString().split('T')[0] });
-        toast('✅ Tarjeta creada');
+        firestoreSaveCard({ id: newId, ...data, comments: 0, attachments: 0, created: new Date().toISOString().split('T')[0] })
+          .then(() => toast('✅ Tarjeta creada'))
+          .catch(err => toast('❌ Error al crear: ' + err.message));
       }
 
       closeModal();
@@ -3007,7 +3084,85 @@
     ];
 
     function getNextAvatarColor() {
-      return AVATAR_PALETTE[TEAM.length % AVATAR_PALETTE.length];
+      const usedColors = new Set(TEAM.map(t => t.color));
+      const unused = AVATAR_PALETTE.find(c => !usedColors.has(c));
+      return unused ?? AVATAR_PALETTE[TEAM.length % AVATAR_PALETTE.length];
+    }
+
+    // ---- Password reset handler (runs on page load) ----
+    let _isHandlingPasswordReset = false;
+    let _resetOobCode = null;
+
+    function handlePasswordReset() {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('mode') !== 'resetPassword') return;
+
+      _resetOobCode = params.get('oobCode');
+      if (!_resetOobCode) return;
+
+      _isHandlingPasswordReset = true;
+
+      // Verify the code is valid before showing the form
+      auth.verifyPasswordResetCode(_resetOobCode)
+        .then(() => {
+          document.getElementById('loginOverlay').style.display = 'none';
+          document.getElementById('resetOverlay').classList.remove('hidden');
+        })
+        .catch(() => {
+          document.getElementById('loginOverlay').style.display = '';
+          _isHandlingPasswordReset = false;
+          showLoginError('El enlace de restablecimiento es inválido o ya expiró. Solicitá uno nuevo.');
+          history.replaceState(null, '', window.location.pathname);
+        });
+    }
+    handlePasswordReset();
+
+    async function submitPasswordReset() {
+      const btn = document.getElementById('resetBtn');
+      const errEl = document.getElementById('resetError');
+      const password = document.getElementById('resetPassword').value;
+      const confirm = document.getElementById('resetPasswordConfirm').value;
+
+      errEl.classList.remove('show');
+
+      if (password.length < 6) {
+        errEl.textContent = 'La contraseña debe tener al menos 6 caracteres.';
+        errEl.classList.add('show');
+        return;
+      }
+      if (password !== confirm) {
+        errEl.textContent = 'Las contraseñas no coinciden.';
+        errEl.classList.add('show');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Guardando...';
+
+      try {
+        await auth.confirmPasswordReset(_resetOobCode, password);
+        document.getElementById('resetPasswordConfirm').closest('.setup-field').style.display = 'none';
+        document.getElementById('resetPassword').closest('.setup-field').style.display = 'none';
+        btn.style.display = 'none';
+        document.getElementById('resetSuccess').classList.add('show');
+        history.replaceState(null, '', window.location.pathname);
+      } catch (err) {
+        btn.disabled = false;
+        btn.textContent = 'Guardar contraseña';
+        const msgs = {
+          'auth/expired-action-code': 'El enlace expiró. Solicitá uno nuevo.',
+          'auth/invalid-action-code': 'El enlace es inválido o ya fue usado.',
+          'auth/weak-password': 'La contraseña debe tener al menos 6 caracteres.',
+        };
+        errEl.textContent = msgs[err.code] || 'Error: ' + err.message;
+        errEl.classList.add('show');
+      }
+    }
+
+    function goToSignIn() {
+      _isHandlingPasswordReset = false;
+      document.getElementById('resetOverlay').classList.add('hidden');
+      document.getElementById('loginOverlay').style.display = '';
     }
 
     // ---- Email link handler (runs on page load) ----
@@ -3152,6 +3307,9 @@
 
     // ====== AUTH STATE ======
     auth.onAuthStateChanged(async user => {
+      // Don't process auth state while handling a password reset flow
+      if (_isHandlingPasswordReset) return;
+
       currentUser = user;
 
       if (user) {
@@ -3192,7 +3350,8 @@
         } catch(e) { teamDoc = { exists: false }; }
 
         if (!teamDoc.exists) {
-          showSetupScreen(user, false);
+          const isGoogleUser = user.providerData.some(p => p.providerId === 'google.com');
+          showSetupScreen(user, !isGoogleUser);
           return;
         }
 
