@@ -467,15 +467,3 @@ auth.onAuthStateChanged(async user => {
 handlePasswordReset();
 handleEmailLinkSignIn();
 
-// Temporarily expose to window so onclick attributes still work
-window.handlePasswordReset = handlePasswordReset;
-window.submitPasswordReset = submitPasswordReset;
-window.goToSignIn = goToSignIn;
-window.submitEmailConfirm = submitEmailConfirm;
-window.loginWithGoogle = loginWithGoogle;
-window.loginWithEmail = loginWithEmail;
-window.sendLoginLink = sendLoginLink;
-window.showForgotPassword = showForgotPassword;
-window.toggleLinkSection = toggleLinkSection;
-window.logout = logout;
-window.submitSetup = submitSetup;

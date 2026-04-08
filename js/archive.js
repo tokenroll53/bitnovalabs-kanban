@@ -205,7 +205,7 @@ export function toggleArchiveDetail(cardId) {
   }
 }
 
-// Temporarily expose to window so onclick attributes still work
+// Expose to window — called via onclick in dynamically generated archive and modal HTML
 window.renderArchive = renderArchive;
 window.promptArchive = promptArchive;
 window.selectArchiveReason = selectArchiveReason;

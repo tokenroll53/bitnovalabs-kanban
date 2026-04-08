@@ -173,7 +173,7 @@ export function closeModal() {
   document.getElementById('modalOverlay').classList.remove('open');
 }
 
-// Temporarily expose to window so onclick attributes still work
+// Expose to window — called via onclick in dynamically generated modal HTML
 window.renderCardModal = renderCardModal;
 window.saveCard = saveCard;
 window.deleteCard = deleteCard;

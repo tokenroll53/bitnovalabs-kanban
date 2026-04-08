@@ -198,7 +198,7 @@ export function openCardDetail(cardId) {
   if (card) window.renderCardModal(card);
 }
 
-// Temporarily expose to window so onclick attributes still work
+// Expose to window for onclick attributes in dynamically generated HTML
 window.openNewCardModal = openNewCardModal;
 window.openCardDetail = openCardDetail;
 window.handleDragOver = handleDragOver;

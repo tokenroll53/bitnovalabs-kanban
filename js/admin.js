@@ -140,9 +140,5 @@ function getAuthError(code) {
   return errors[code] || (code ? `Error (${code}).` : null);
 }
 
-// Temporarily expose to window so onclick attributes still work
-window.openAdminPanel = openAdminPanel;
-window.closeAdminPanel = closeAdminPanel;
-window.sendInvitation = sendInvitation;
-window.loadInviteList = loadInviteList;
+// Expose revokeInvite to window — called via onclick in dynamically generated invite table rows
 window.revokeInvite = revokeInvite;
