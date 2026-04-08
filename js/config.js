@@ -1,0 +1,32 @@
+/* Bitnova Kanban — config: constants and static data */
+
+export const COLUMNS = [
+  { id: 'backlog',     title: 'Backlog / Leads',       color: 'var(--col-backlog)',   wip: 0 },
+  { id: 'analysis',   title: 'En Análisis',            color: 'var(--col-analysis)',  wip: 5 },
+  { id: 'development',title: 'En Desarrollo',          color: 'var(--col-dev)',       wip: 4 },
+  { id: 'testing',    title: 'Testing / Revisión',     color: 'var(--col-testing)',   wip: 3 },
+  { id: 'done',       title: 'Desplegado / Cerrado',   color: 'var(--col-done)',      wip: 0 },
+];
+
+export const LABELS = [
+  { id: 'frontend', name: 'Frontend', class: 'label-frontend' },
+  { id: 'backend',  name: 'Backend',  class: 'label-backend'  },
+  { id: 'bug',      name: 'Bug',      class: 'label-bug'      },
+  { id: 'feature',  name: 'Feature',  class: 'label-feature'  },
+  { id: 'sales',    name: 'Ventas',   class: 'label-sales'    },
+  { id: 'support',  name: 'Soporte',  class: 'label-support'  },
+  { id: 'devops',   name: 'DevOps',   class: 'label-devops'   },
+  { id: 'design',   name: 'Diseño',   class: 'label-design'   },
+];
+
+export const PRIORITIES = ['urgent', 'high', 'medium', 'low'];
+
+export const AVATAR_PALETTE = [
+  '#3b82f6','#10b981','#f59e0b','#8b5cf6','#ec4899',
+  '#06b6d4','#f97316','#14b8a6','#6366f1','#f43f5e',
+  '#84cc16','#a855f7',
+];
+
+export function isMobile() {
+  return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+}
