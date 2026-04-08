@@ -56,43 +56,43 @@ The priority bar is a 3px strip at the top of each card, full width, `border-rad
 
 ## Team Members
 
-Current hardcoded team. Each member has a unique color used for their avatar circle and the assignee picker chip. **Note:** this list will become dynamic (loaded from Firestore `team/` collection) after the P1 auth implementation.
+El equipo es **dinámico** — se carga de la colección `team/{uid}` en Firestore. Cada usuario tiene un campo `color` asignado en el momento de su primer login (account setup).
 
-| ID | Name | Avatar color | Hex |
-|----|------|-------------|-----|
-| `gabriel` | Gabriel | Blue | `#3b82f6` |
-| `nasser` | Nasser | Emerald | `#10b981` |
-| `erik` | Erik | Amber | `#f59e0b` |
-| `gasm` | Gasm | Violet | `#8b5cf6` |
-| `alex` | Alex | Pink | `#ec4899` |
-| `choshi` | Choshi | Cyan | `#06b6d4` |
-| `ariel` | Ariel | Orange | `#f97316` |
-| `mario` | Mario | Teal | `#14b8a6` |
+**Campos por documento `team/{uid}`:**
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| `name` | string | Nombre para mostrar |
+| `email` | string | Correo registrado |
+| `color` | string | Hex único de la paleta AVATAR_PALETTE |
+| `createdAt` | timestamp | Fecha de creación del perfil |
 
 **Avatar rendering:**
 - 24×24px circle
-- Background: member color
-- Text: first initial, DM Sans 700, 10px, white
-- Border: `2px solid --bg-card` (creates stacking separation)
-- Stack: `margin-left: -6px` on 2nd+ avatars
+- Background: campo `color` del doc Firestore
+- Text: primera inicial, DM Sans 700, 10px, white
+- Border: `2px solid --bg-card` (separación en stack)
+- Stack: `margin-left: -6px` en 2do+ avatar
 
-**Future auto-assignment palette** (for new users joining via invite):
-When the team list becomes dynamic, use this palette in order to auto-assign colors to new members:
+**Paleta de asignación automática de colores (`AVATAR_PALETTE`):**
 
-```
-#3b82f6  blue
-#10b981  emerald
-#f59e0b  amber
-#8b5cf6  violet
-#ec4899  pink
-#06b6d4  cyan
-#f97316  orange
-#14b8a6  teal
-#6366f1  indigo
-#f43f5e  rose
-#84cc16  lime
-#a855f7  purple
-```
+El sistema elige el primer color no usado en esta lista al crear el perfil de cada usuario:
+
+| # | Hex | Color |
+|---|-----|-------|
+| 1 | `#3b82f6` | blue |
+| 2 | `#10b981` | emerald |
+| 3 | `#f59e0b` | amber |
+| 4 | `#8b5cf6` | violet |
+| 5 | `#ec4899` | pink |
+| 6 | `#06b6d4` | cyan |
+| 7 | `#f97316` | orange |
+| 8 | `#14b8a6` | teal |
+| 9 | `#6366f1` | indigo |
+| 10 | `#f43f5e` | rose |
+| 11 | `#84cc16` | lime |
+| 12 | `#a855f7` | purple |
+
+Si todos los colores están en uso (>12 usuarios), el sistema cicla desde el inicio.
 
 ---
 

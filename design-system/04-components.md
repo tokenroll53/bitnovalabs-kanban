@@ -517,6 +517,54 @@ Enter: `slideUp` 0.3s — Exit: `fadeOut` 0.3s at 2.7s.
 
 ---
 
+## Email Confirm Card
+
+**ID:** `emailConfirmOverlay` · **Selector:** `.reset-overlay` / `.reset-card`
+
+Aparece cuando un usuario invitado llega desde su magic link y el email no está en localStorage. Mismo estilo visual que Password Reset Card.
+
+```
+Z-index:     6000
+Background:  --bg-deep (overlay) / --bg-surface (card)
+Card width:  420px max, 90%
+Padding:     40px 40px 32px
+```
+
+| Elemento | Specs |
+|----------|-------|
+| Título | Space Grotesk 700, 20px — "Confirmá tu correo" |
+| Subtitle | DM Sans 400, 13px, --text-muted |
+| Input email | `.setup-input`, type=email |
+| Btn Continuar | `.btn-setup` (full width, --accent-blue) |
+| Error | `.setup-error` (rose, display none → block) |
+
+---
+
+## Password Reset Card
+
+**ID:** `resetOverlay` · **Selector:** `.reset-overlay` / `.reset-card`
+
+Aparece cuando la URL contiene `?mode=resetPassword&oobCode=…` (link desde correo de Firebase).
+
+```
+Z-index:     6000
+Background:  --bg-deep (overlay) / --bg-surface (card)
+Card width:  420px max, 90%
+Padding:     40px 40px 32px
+```
+
+| Elemento | Specs |
+|----------|-------|
+| Título | Space Grotesk 700, 20px — "Nueva contraseña" |
+| Subtitle | DM Sans 400, 13px, --text-muted |
+| Input nueva contraseña | `.setup-input`, type=password |
+| Input confirmar | `.setup-input`, type=password |
+| Btn Guardar | `.btn-setup` (full width) |
+| Error | `.setup-error` |
+| Banner éxito | `.reset-success` — bg emerald 10%, border emerald 25%, color --accent-emerald + Btn "Ir al inicio de sesión" |
+
+---
+
 ## Login Card
 
 **Selector:** `.login-overlay` / `.login-card`
@@ -550,6 +598,36 @@ Radius:       --radius-sm (6px)
 Color:        --accent-rose
 Font:         DM Sans 400, 12px
 ```
+
+---
+
+## Account Setup Card
+
+**ID:** `setupOverlay` · **Selector:** `.setup-overlay` / `.setup-card`
+
+Aparece la primera vez que un usuario accede (invite pendiente o sin team doc). Siempre muestra nombre; contraseña es condicional (oculta para Google, visible para email/email-link).
+
+```
+Z-index:     5000
+Background:  --bg-deep (overlay) / --bg-surface (card)
+Card width:  420px max, 90%
+Padding:     40px 40px 32px
+Animation:   loginFadeIn 0.4s ease
+```
+
+| Elemento | Specs |
+|----------|-------|
+| Título | Space Grotesk 700, 20px — "Bienvenido/a" |
+| Subtitle | DM Sans 400, 13px, --text-muted — "Configurá tu perfil…" |
+| Input nombre | `.setup-input`, type=text, maxlength=50 |
+| Nota contraseña | DM Sans 400, 12px, --text-muted (solo si needsPassword) |
+| Input contraseña | `.setup-input`, type=password, autocomplete=new-password (condicional) |
+| Input confirmar | `.setup-input`, type=password, autocomplete=new-password (condicional) |
+| Btn Comenzar | `.btn-setup` (full width, --accent-blue) |
+| Error | `.setup-error` |
+
+**Lógica de visibilidad del bloque de contraseña:**  
+`needsPassword = true` para todos los usuarios no-Google. Google users solo ven el campo de nombre.
 
 ---
 

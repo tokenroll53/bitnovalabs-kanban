@@ -14,7 +14,8 @@ The visual language is a **dark-only, high-contrast, developer-focused** interfa
 | `02-typography.md` | Fonts, type scale, weight and spacing rules |
 | `03-spacing-radius-shadows.md` | Spacing system, border radius scale, shadows, transitions |
 | `04-components.md` | Every UI component with exact measurements and states |
-| `05-data-tokens.md` | Labels, priorities, columns, team member colors |
+| `05-data-tokens.md` | Labels, priorities, columns, team member colors (dynamic via Firestore) |
+| `06-screen-map.md` | All screens, navigation flow, and element inventory per screen |
 
 ---
 
@@ -26,6 +27,7 @@ The visual language is a **dark-only, high-contrast, developer-focused** interfa
 - [ ] Create effect styles (shadows) from `03-spacing-radius-shadows.md`
 - [ ] Build base components from `04-components.md`
 - [ ] Add label/priority/column tokens from `05-data-tokens.md`
+- [ ] Lay out all 9 screens using `06-screen-map.md` as reference
 
 ---
 
@@ -43,4 +45,4 @@ The visual language is a **dark-only, high-contrast, developer-focused** interfa
 
 **Micro-motion.** Two transition speeds: 150ms fast (hover, focus) and 250ms smooth (modals, panels). Easing is always `cubic-bezier(0.4, 0, 0.2, 1)` (Material standard ease).
 
-*Last updated: 2026-04-07*
+*Last updated: 2026-04-08*
