@@ -4,6 +4,7 @@ import './auth.js';       // self-initializing: registers onAuthStateChanged, ha
 import { renderBoard } from './board.js';
 import { renderAnalytics } from './analytics.js';
 import { renderArchive } from './archive.js';
+import { renderProjects } from './projects.js';
 import { exportData } from './ui.js';
 import {
   setCurrentView,
@@ -75,6 +76,7 @@ document.querySelectorAll('.nav-tab').forEach(tab => {
     document.getElementById('boardWrapper').classList.add('hidden');
     document.getElementById('analyticsView').classList.remove('active');
     document.getElementById('archiveView').classList.remove('active');
+    document.getElementById('projectsView').classList.remove('active');
     document.querySelector('.toolbar').style.display = currentView === 'board' ? '' : 'none';
 
     if (currentView === 'board') {
@@ -85,6 +87,9 @@ document.querySelectorAll('.nav-tab').forEach(tab => {
     } else if (currentView === 'archive') {
       document.getElementById('archiveView').classList.add('active');
       renderArchive();
+    } else if (currentView === 'projects') {
+      document.getElementById('projectsView').classList.add('active');
+      renderProjects();
     }
   });
 });
