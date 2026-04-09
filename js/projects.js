@@ -625,13 +625,15 @@ function _renderProjectForm(existing) {
         color:var(--accent-rose);font-size:12px"></div>
     </div>
     <div class="modal-footer">
-      <button class="btn" onclick="closeModal()">Cancelar</button>
-      <button class="btn btn-primary" onclick="saveProjectFromModal(${isEdit ? `'${escHtml(existing.code)}'` : ''})">
+      <button class="btn" id="pf-cancel-btn">Cancelar</button>
+      <button class="btn btn-primary" id="pf-save-btn">
         ${isEdit ? 'Guardar cambios' : 'Crear Proyecto'}
       </button>
     </div>
   `;
   overlay.classList.add('active');
+  document.getElementById('pf-cancel-btn').addEventListener('click', closeModal);
+  document.getElementById('pf-save-btn').addEventListener('click', () => window.saveProjectFromModal(isEdit ? existing.code : undefined));
 }
 
 window.saveProjectFromModal = async function(existingCode) {

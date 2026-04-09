@@ -793,11 +793,13 @@ function _renderSnapshotFormModal() {
         color:var(--accent-rose);font-size:12px"></div>
     </div>
     <div class="modal-footer">
-      <button class="btn" onclick="closeModal()">Cancelar</button>
-      <button class="btn btn-primary" onclick="saveSnapshotFromModal()">Crear Snapshot</button>
+      <button class="btn" id="sf-cancel-btn">Cancelar</button>
+      <button class="btn btn-primary" id="sf-save-btn">Crear Snapshot</button>
     </div>
   `;
   overlay.classList.add('active');
+  document.getElementById('sf-cancel-btn').addEventListener('click', closeModal);
+  document.getElementById('sf-save-btn').addEventListener('click', () => window.saveSnapshotFromModal());
 }
 
 window._updateSnapshotOptionLabel = function(idx, val) {
