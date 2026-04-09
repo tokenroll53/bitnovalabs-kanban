@@ -117,6 +117,7 @@ export async function restoreProject(code) {
 
 // Expose selected codes for inline onclick handlers in the selection bar
 function _selectedProjectCodes() { return _selectedCodes; }
+window._selectedProjectCodes = _selectedProjectCodes;
 
 // ====== FILTERING ======
 
