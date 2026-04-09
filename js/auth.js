@@ -6,6 +6,7 @@ import {
   setCards, setArchivedCards, setTeam,
   getUnsubCards, setUnsubCards,
   getUnsubArchived, setUnsubArchived,
+  getUnsubProjects, setUnsubProjects, setProjects,
   getCurrentView, getNextAvatarColor,
 } from './state.js';
 import { toast } from './ui.js';
@@ -14,6 +15,7 @@ import { renderBoard } from './board.js';
 import { renderAnalytics } from './analytics.js';
 import { renderArchive } from './archive.js';
 import { startFirestoreListeners } from './firestore.js';
+import { startProjectsListener, renderProjects } from './projects.js';
 import { isMobile } from './config.js';
 
 // ====== HELPERS ======
@@ -272,8 +274,10 @@ export function logout() {
   if (!confirm('¿Cerrar sesión?')) return;
   const unsubCards = getUnsubCards();
   const unsubArchived = getUnsubArchived();
+  const unsubProjects = getUnsubProjects();
   if (unsubCards) unsubCards();
   if (unsubArchived) unsubArchived();
+  if (unsubProjects) unsubProjects();
   auth.signOut();
 }
 
@@ -355,6 +359,10 @@ export async function submitSetup() {
         if (getCurrentView() === 'archive') renderArchive();
       },
     });
+    const unsubProjects = startProjectsListener({
+      onProjectsUpdate: () => { if (getCurrentView() === 'projects') renderProjects(); },
+    });
+    setUnsubProjects(unsubProjects);
     toast('👋 Hola, ' + (user.displayName?.split(' ')[0] || 'usuario'));
 
   } catch(err) {
@@ -441,6 +449,10 @@ auth.onAuthStateChanged(async user => {
         if (getCurrentView() === 'archive') renderArchive();
       },
     });
+    const unsubProjects = startProjectsListener({
+      onProjectsUpdate: () => { if (getCurrentView() === 'projects') renderProjects(); },
+    });
+    setUnsubProjects(unsubProjects);
     toast('👋 Hola, ' + (user.displayName?.split(' ')[0] || 'usuario'));
 
   } else {
@@ -453,12 +465,15 @@ auth.onAuthStateChanged(async user => {
 
     const unsubCards = getUnsubCards();
     const unsubArchived = getUnsubArchived();
+    const unsubProjects = getUnsubProjects();
     if (unsubCards) { unsubCards(); setUnsubCards(null); }
     if (unsubArchived) { unsubArchived(); setUnsubArchived(null); }
+    if (unsubProjects) { unsubProjects(); setUnsubProjects(null); }
 
     setCards([]);
     setArchivedCards([]);
     setTeam([]);
+    setProjects([]);
     renderBoard();
   }
 });
