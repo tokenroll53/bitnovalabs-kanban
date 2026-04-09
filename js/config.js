@@ -30,3 +30,17 @@ export const AVATAR_PALETTE = [
 export function isMobile() {
   return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
 }
+
+export const PROJECT_TYPES = [
+  { id: 'web_app',     label: 'Aplicación Web' },
+  { id: 'mobile_app',  label: 'App Móvil' },
+  { id: 'ecommerce',   label: 'E-commerce' },
+  { id: 'landing',     label: 'Landing / Sitio Corporativo' },
+  { id: 'automation',  label: 'Automatización / Integración' },
+  { id: 'consulting',  label: 'Consultoría / Asesoría' },
+  { id: 'maintenance', label: 'Mantenimiento / Soporte' },
+  { id: 'chatbot',     label: 'Asistente Digital (Chatbot)' },
+];
+
+export const PROJECT_CODE_PREFIX = 'BL';
+export const REUSE_PROJECT_CODE_GAPS = true;
