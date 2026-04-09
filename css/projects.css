@@ -234,6 +234,125 @@
   grid-column: 1 / -1;
 }
 
+/* ---- Tab toggle (Activos / Archivados) ---- */
+.projects-tab-toggle {
+  display: flex;
+  gap: 4px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 3px;
+}
+.projects-tab-btn {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 12px;
+  border-radius: calc(var(--radius-sm) - 1px);
+  border: none;
+  background: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: var(--transition-fast);
+  white-space: nowrap;
+}
+.projects-tab-btn .tab-count {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  margin-left: 5px;
+  color: var(--text-muted);
+}
+.projects-tab-btn.active {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+}
+.projects-tab-btn.active .tab-count { color: var(--text-secondary); }
+
+/* ---- Archive reason badge (archived projects table) ---- */
+.project-archive-reason {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+.project-archive-reason.completed {
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--accent-emerald);
+}
+.project-archive-reason.cancelled {
+  background: rgba(244, 63, 94, 0.15);
+  color: var(--accent-rose);
+}
+
+/* ---- Per-row archive button ---- */
+.project-archive-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+.project-archive-btn:hover {
+  color: var(--accent-amber);
+  border-color: rgba(245, 158, 11, 0.3);
+  background: rgba(245, 158, 11, 0.08);
+}
+
+/* ---- Restore button (archived projects table) ---- */
+.btn-restore-project {
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  background: rgba(16, 185, 129, 0.08);
+  color: var(--accent-emerald);
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  white-space: nowrap;
+}
+.btn-restore-project:hover {
+  background: rgba(16, 185, 129, 0.18);
+  border-color: rgba(16, 185, 129, 0.5);
+}
+
+/* ---- Archive reason picker pills (in confirmation modal) ---- */
+.archive-reason-pill {
+  padding: 5px 14px;
+  border-radius: 20px;
+  border: 1px solid var(--border-subtle);
+  background: none;
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+.archive-reason-pill:hover {
+  border-color: var(--border-active);
+  color: var(--text-primary);
+}
+.archive-reason-pill.selected {
+  background: rgba(245, 158, 11, 0.15);
+  border-color: rgba(245, 158, 11, 0.5);
+  color: var(--accent-amber);
+}
+
+/* ---- Widen action column to fit 2 icon buttons ---- */
+.projects-table .col-action { width: 80px; }
+
 /* ---- Responsive ---- */
 @media (max-width: 768px) {
   .projects-view { padding: 12px; }
