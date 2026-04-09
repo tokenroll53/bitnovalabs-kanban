@@ -40,9 +40,11 @@ Inventario completo de todas las pantallas/overlays del app, sus conexiones de n
 │  Tab "Métricas" ──────────────────────► [S6 Analytics View]           │
 │  Tab "Archivados" ────────────────────► [S7 Archive View]             │
 │  Tab "Proyectos" ─────────────────────► [S10 Projects View]           │
+│  Tab "Snapshot" ──────────────────────► [S11 Snapshot View]           │
 │                                                                        │
 │  Clic en tarjeta o "+ Agregar" ───────► [S8 Card Modal]               │
 │  Clic "Admin" (solo admins) ──────────► [S9 Admin Panel]              │
+│  Clic en propuesta Snapshot ──────────► [S11a Detail Overlay]         │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -320,6 +322,94 @@ Opens from per-row archive btn or "Archivar seleccionados". Renders into `#modal
 
 ---
 
+## S11 — Snapshot View (List)
+
+**ID:** `snapshotView`  
+**Cuándo aparece:** Nav tab "Snapshot"  
+**Layout:** Full-width content area. Header bar has a pill tab toggle: **Activas** / **Archivadas**.
+
+### Sub-tab: Activas (default)
+
+| Elemento | Detalles |
+|----------|----------|
+| Header bar | Título "Snapshot" · Tab toggle · Btn "Nueva Propuesta" (btn-primary) |
+| Table | Título · Privacidad badge · Tiempo restante (countdown) · VP Base · Opciones · Creado por · Archivar icon |
+| Empty state | Icon + "No hay propuestas activas." |
+
+**Privacidad badge:** PUBLIC (cyan, eye icon) · SECRET (amber, lock icon).
+
+**Countdown column:** live-ticking JetBrains Mono timer. Color: emerald → amber → rose with pulse below 10%.
+
+**Row click on Título:** opens S11a Snapshot Detail Overlay.
+
+**Archive icon (amber hover):** opens simple archive confirmation modal → proposal moves to Archivadas.
+
+### Sub-tab: Archivadas
+
+| Elemento | Detalles |
+|----------|----------|
+| Header bar | Título · Tab toggle (sin "Nueva Propuesta") |
+| Table | Título · Privacidad · Finalizó · VP Base · Creado por |
+| Empty state | "No hay propuestas archivadas." |
+
+**Row click on Título:** opens S11a in read-only / results mode.
+
+### Create Proposal Modal
+
+Opens from "Nueva Propuesta". Renders into `#modalOverlay` / `#modalContent`.
+
+1. Título (required)
+2. Descripción (optional textarea)
+3. Duración (select from timespan options) + VP por participante (number, default 100)
+4. Privacidad picker: Pública / Secreta (pill toggle)
+5. Options builder: min 2 named options, add/remove rows
+6. Footer: Cancelar · Crear Snapshot
+
+---
+
+## S11a — Snapshot Detail Overlay (Voting Workspace)
+
+**ID:** `snapshotDetailOverlay`  
+**Tipo:** Full-screen overlay, z-index 1100, backdrop blur  
+**Triggered by:** clicking proposal title in S11 list
+
+### Active State (not expired)
+
+| Zona | Elementos |
+|------|-----------|
+| Header | Privacy badge · Título · Descripción · Close button |
+| VP Tracker (sticky) | Glassmorphism bar — "Tu Voting Power: [balance] / [total]" + budget progress bar |
+| Timer | `.snapshot-countdown` — large ticking clock (color shifts) |
+| Options workspace | One `.snapshot-option-card` per option — label + number input + weight % |
+| Results sidebar | PUBLIC: live bar chart. SECRET: "🔒 Resultados Cifrados" placeholder |
+| Footer | `.snapshot-commit-btn` — disabled until ≥ 1 VP allocated and not exceeded |
+
+**VP validation:**
+- `balance = baseVP − Σ inputs`
+- `balance < 0` → bar turns rose, commit disabled, visual warning
+- `Σ ≥ 1 AND balance ≥ 0` → commit enabled
+
+**Submit:** writes/overwrites `snapshots/{id}/votes/{uid}`. User may re-submit while active.
+
+### Finality State (expired)
+
+Triggered when countdown reaches zero OR when opening an already-expired proposal.
+
+1. **Flash animation** (`snapshot-flash` 0.8s) fires.
+2. All inputs disabled (`.snapshot-frozen` class).
+3. **Finality Banner:** "⚡ Snapshot Finalizado — Estado capturado e inmutable."
+4. **Results bar chart** shown regardless of privacy setting.
+5. **Verification Stamp:** Snapshot ID · Timestamp of Finality · Participantes · VP Total Gastado.
+
+### CRUD Flows
+
+- Create → `snapshots/{auto-id}` written with `status: 'active'` + `expiresAt` ISO string
+- Vote → `snapshots/{id}/votes/{uid}` set (overwritable while active)
+- Expiry → client-side detection; no Firestore write needed to "expire"
+- Archive → `status: 'archived'`; proposal moves to Archivadas tab; detail still readable
+
+---
+
 ## Flujos de estado de error
 
 | Situación | Pantalla | Mensaje |
@@ -334,4 +424,4 @@ Opens from per-row archive btn or "Archivar seleccionados". Renders into `#modal
 
 ---
 
-*Last updated: 2026-04-08*
+*Last updated: 2026-04-09*

@@ -180,6 +180,78 @@ On restore, `archivedAt`, `archivedBy`, and `archiveReason` are deleted via `Fie
 
 ---
 
+## Snapshot Data
+
+### Snapshot Document (`snapshots/{auto-id}`)
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `title` | string | Proposal title |
+| `description` | string | Context text (optional) |
+| `privacy` | string | `'public'` \| `'secret'` |
+| `status` | string | `'active'` \| `'archived'` |
+| `baseVP` | number | Total Voting Power budget per participant |
+| `timespan` | number | Duration in milliseconds |
+| `expiresAt` | string | ISO timestamp: `Date.now() + timespan` at creation |
+| `options` | array | `Array<{ id: string, label: string }>` — min 2 options |
+| `createdBy` | string | Email of creator |
+| `createdAt` | Timestamp | Firestore server timestamp |
+
+Whether a snapshot is **expired** is computed client-side: `Date.now() >= new Date(expiresAt).getTime()`. No separate field is stored.
+
+### Vote Subcollection (`snapshots/{id}/votes/{userId}`)
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `userName` | string | displayName or email |
+| `userEmail` | string | User's email |
+| `allocation` | object | `{ [optionId]: number }` — VP per option |
+| `totalSpent` | number | `Σ allocation values` |
+| `submittedAt` | string | ISO timestamp |
+
+Users can overwrite their vote while the snapshot is active. Only one vote doc per user per snapshot.
+
+### Privacy Modes
+
+| Value | Badge color | Behavior |
+|-------|-------------|----------|
+| `public` | `--accent-cyan` | Live results visible to all voters while active |
+| `secret` | `--accent-amber` | Results hidden behind "🔒 Resultados Cifrados" until expiry; revealed on finality |
+
+### Timespan Options
+
+| Label | ms value |
+|-------|---------|
+| 15 minutos | `900000` |
+| 30 minutos | `1800000` |
+| 1 hora | `3600000` |
+| 2 horas | `7200000` |
+| 6 horas | `21600000` |
+| 24 horas | `86400000` |
+| 3 días | `259200000` |
+| 7 días | `604800000` |
+
+Default VP per participant: `100` (`SNAPSHOT_DEFAULT_VP` in `config.js`).
+
+### Countdown Color States
+
+| Remaining % of original timespan | Color token | Animation |
+|-----------------------------------|-------------|-----------|
+| > 50% | `--accent-emerald` | none |
+| 10–50% | `--accent-amber` | none |
+| < 10% | `--accent-rose` | `pulse` (opacity loop) |
+| 0 (expired) | — | `snapshot-flash` then frozen |
+
+### Results Calculation
+
+```
+percentage(option) = (Σ votes[*].allocation[optionId] / totalSpentVP) × 100
+```
+
+Displayed as a CSS bar chart with width set to the computed percentage. The **Verification Stamp** shown in the finality view contains: Snapshot ID (Firestore document ID) · Timestamp of Finality (`expiresAt`) · participant count · total VP spent.
+
+---
+
 ## Sync Status States
 
 The header sync dot has three states:

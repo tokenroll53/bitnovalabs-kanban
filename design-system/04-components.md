@@ -1111,6 +1111,356 @@ Mobile: grid collapses to 1 column.
 
 ---
 
+## Snapshot View
+
+**ID:** `snapshotView` · **Selector:** `.snapshot-view`
+
+Full-screen content area, shown when the "Snapshot" nav tab is active.
+
+```
+Padding:    24px
+Overflow:   auto (y)
+Display:    none → block (.active)
+```
+
+### Snapshot Header Bar
+
+**Selector:** `.snapshot-header-bar`
+
+```
+Layout:   flex, space-between, align-center
+Margin-bottom: 20px
+```
+
+Title: Space Grotesk 700, 20px. Left side contains the tab toggle.
+Right side (active tab only): Btn "Nueva Propuesta" (btn-primary).
+
+### Snapshot Tab Toggle
+
+**Selector:** `.snapshot-tab-toggle` / `.snapshot-tab-btn`
+
+Identical structure to `.projects-tab-toggle`. Switches between "Activas" and "Archivadas".
+
+```
+Container:  flex, gap 4px, bg --bg-surface, border --border-subtle, radius --radius-sm, padding 3px
+Button:     DM Sans 500, 12px, padding 4px 12px
+Default:    color --text-secondary, bg none
+Active:     bg --bg-elevated, color --text-primary
+Count span: .tab-count — JetBrains Mono 10px
+```
+
+### Snapshot List Table
+
+**Selector:** `.snapshot-table`
+
+Same base styles as `.projects-table`. Active tab columns:
+
+| Column | Content |
+|--------|---------|
+| Título | `.snapshot-title-cell` — clickable, opens detail overlay |
+| Privacidad | `.snapshot-privacy-badge` |
+| Tiempo restante | `.snapshot-countdown` — live ticking |
+| VP Base | JetBrains Mono |
+| Opciones | count |
+| Creado por | plain text |
+| — | Archive icon button (amber hover) |
+
+Archived tab columns: Título · Privacidad · Finalizó · VP Base · Creado por.
+
+### Privacy Badge
+
+**Selector:** `.snapshot-privacy-badge`
+
+```
+Padding:      2px 10px
+Border-radius:10px (pill)
+Font:         DM Sans 600, 10px, letter-spacing 0.3px
+Display:      inline-flex, align-center, gap 4px
+Icon:         12×12px SVG
+```
+
+| Variant | Background | Border | Color | Icon |
+|---------|-----------|--------|-------|------|
+| `.public` | `rgba(6,182,212,0.12)` | `rgba(6,182,212,0.25)` | `--accent-cyan` | eye |
+| `.secret` | `rgba(245,158,11,0.12)` | `rgba(245,158,11,0.25)` | `--accent-amber` | lock |
+
+### Countdown Clock (List)
+
+**Selector:** `.snapshot-countdown`
+
+```
+Font:         JetBrains Mono 600, 12px
+Letter-spacing: 1px
+White-space:  nowrap
+```
+
+| Class | Color | Animation |
+|-------|-------|-----------|
+| `.emerald` | `--accent-emerald` | none |
+| `.amber` | `--accent-amber` | none |
+| `.rose` | `--accent-rose` | none |
+| `.rose.pulse` | `--accent-rose` | opacity loop (like syncPulse) |
+
+---
+
+## Snapshot Detail Overlay
+
+**ID:** `snapshotDetailOverlay` · **Selector:** `.snapshot-detail-overlay`
+
+A dedicated full-screen overlay for the voting workspace. Separate from `#modalOverlay`.
+
+**Overlay:**
+```
+Position:   fixed inset 0
+Z-index:    1100
+Background: rgba(0,0,0,0.70)
+Backdrop:   blur(6px)
+Display:    none → flex (center) when .active
+```
+
+**Window:**
+```
+Width:         780px
+Max-width:     96vw
+Max-height:    92vh
+Background:    --bg-surface
+Border:        1px solid --border-subtle
+Border-radius: --radius-xl (18px)
+Shadow:        --shadow-elevated
+Overflow-y:    scroll
+```
+
+Enter animation: same `translateY(20px) scale(0.97) → 0 scale(1)` as card modal.
+
+### Detail Header
+
+```
+Padding:       20px 24px 16px
+Border-bottom: 1px solid --border-subtle
+Layout:        flex, space-between, align-start
+```
+
+Left: privacy badge + title (Space Grotesk 700, 18px) + description (DM Sans 400, 13px, `--text-secondary`).
+Right: close button (`32×32px`, same style as `.modal-close`).
+
+### VP Budget Tracker
+
+**Selector:** `.snapshot-vp-tracker`
+
+Sticky glassmorphism bar at the top of the scrollable body.
+
+```
+Position:      sticky
+Top:           0
+Z-index:       10
+Background:    rgba(17,24,39,0.85)
+Backdrop:      blur(8px)
+Border:        1px solid rgba(6,182,212,0.20)
+Border-radius: --radius-md (10px)
+Padding:       10px 16px
+Margin:        16px 24px 0
+Layout:        flex, space-between, align-center
+```
+
+Left: label "Tu Voting Power:" (DM Sans 11px uppercase, `--text-muted`) + `[balance] / [total]` (JetBrains Mono 600, 16px, `--accent-cyan`).
+Right: budget progress bar.
+
+**Budget Progress Bar:**
+
+```
+.snapshot-vp-bar-track:   height 6px, bg --bg-elevated, radius 3px, flex 1, max-width 200px
+.snapshot-vp-bar-fill:    height 100%, bg --accent-cyan, radius 3px, transition width 150ms
+.snapshot-vp-bar-fill.exceeded: bg --accent-rose
+```
+
+### Option Card
+
+**Selector:** `.snapshot-option-card`
+
+```
+Background:    --bg-card
+Border:        1px solid --border-subtle
+Border-radius: --radius-md (10px)
+Padding:       14px 16px
+Margin-bottom: 10px
+Layout:        flex, align-center, gap 12px
+Transition:    --transition-fast
+```
+
+Hover: border `--border-active`.
+
+Parts:
+- **Label** (`flex: 1`): DM Sans 600, 14px, `--text-primary`
+- **Allocation input** (`width: 72px`): modal-input style, `text-align: center`, JetBrains Mono 14px, `type=number min=0`
+- **Weight badge** (`.snapshot-weight-badge`): DM Sans 600, 11px, `--text-muted` → `--accent-cyan` when value > 0. Shows "X%"
+
+### Commit Button
+
+**Selector:** `.snapshot-commit-btn`
+
+```
+Width:         100%
+Padding:       12px
+Margin-top:    20px
+Border-radius: --radius-md (10px)
+Background:    linear-gradient(135deg, rgba(6,182,212,0.20), rgba(6,182,212,0.10))
+Border:        1px solid rgba(6,182,212,0.40)
+Color:         --accent-cyan
+Font:          DM Sans 600, 14px
+Cursor:        pointer
+Transition:    --transition-fast
+```
+
+Hover: `background: rgba(6,182,212,0.28)`, `border-color: rgba(6,182,212,0.65)`.
+Disabled: `opacity: 0.4`, `cursor: not-allowed`.
+
+---
+
+## Snapshot Results Panel
+
+**Selector:** `.snapshot-results-panel`
+
+Shown in the detail overlay:
+- **PUBLIC + active:** live sidebar showing current vote distribution.
+- **SECRET + active:** encrypted placeholder.
+- **Expired (any privacy):** final resolution view.
+
+### Result Bar Row
+
+**Selector:** `.snapshot-result-row`
+
+```
+Layout:        grid, columns [label 1fr] [bar 2fr] [meta 80px], gap 10px, align-center
+Margin-bottom: 10px
+```
+
+- `.snapshot-result-label`: DM Sans 500, 13px, `--text-primary`
+- `.snapshot-result-bar-track`: height 8px, bg `--bg-elevated`, radius 4px, overflow hidden
+- `.snapshot-result-bar-fill`: height 100%, bg `--accent-cyan`, radius 4px; `transition: width 0.5s ease` on render
+- `.snapshot-result-pct`: JetBrains Mono 600, 13px, `--text-primary`
+- `.snapshot-result-vp`: DM Sans 400, 11px, `--text-muted`
+
+### Verification Stamp
+
+**Selector:** `.snapshot-stamp`
+
+Shown only in finality state (expired).
+
+```
+Background:    --bg-deep
+Border:        1px solid rgba(6,182,212,0.15)
+Border-radius: --radius-md (10px)
+Padding:       14px 16px
+Margin-top:    24px
+Font:          JetBrains Mono
+```
+
+`.snapshot-stamp-row`: flex, space-between, padding 4px 0, border-bottom `--border-subtle` (last: none).
+`.snapshot-stamp-label`: 10px, `--text-muted`, uppercase, letter-spacing 0.5px.
+`.snapshot-stamp-value`: 11px, `--text-secondary`, word-break: break-all.
+
+### Encrypted Placeholder
+
+**Selector:** `.snapshot-encrypted-placeholder`
+
+```
+Text-align:  center
+Padding:     40px 24px
+Color:       --accent-amber
+Font:        DM Sans 13px
+```
+
+Lock icon: `40×40px SVG`, `rgba(245,158,11,0.3)`, centered.
+Title: DM Sans 600, 14px. Subtitle: DM Sans 400, 12px, `--text-muted`.
+
+---
+
+## Snapshot Frozen State
+
+**Selector:** `.snapshot-frozen`
+
+Applied to `.snapshot-detail-window` when the timer reaches zero.
+
+```
+Box-shadow:      0 0 0 1px rgba(6,182,212,0.20), inset 0 0 40px rgba(6,182,212,0.03)
+pointer-events:  none on .snapshot-workspace (inputs disabled)
+```
+
+Frozen banner (`.snapshot-finality-banner`):
+```
+Background:  rgba(6,182,212,0.08)
+Border:      1px solid rgba(6,182,212,0.20)
+Border-radius: --radius-sm
+Padding:     8px 14px
+Color:       --accent-cyan
+Font:        DM Sans 600, 12px
+```
+
+Text: "⚡ Snapshot Finalizado — Estado capturado e inmutable."
+
+### Flash Animation
+
+```css
+@keyframes snapshot-flash {
+  0%   { opacity: 1; }
+  15%  { opacity: 0.05; }
+  30%  { opacity: 1; }
+  50%  { opacity: 0.05; }
+  70%  { opacity: 1; }
+  100% { opacity: 1; }
+}
+.snapshot-flash { animation: snapshot-flash 0.8s ease; }
+```
+
+---
+
+## Snapshot Create Modal Helpers
+
+Reuses `#modalOverlay` / `#modalContent` shell (same as project form).
+
+### Option Row
+
+**Selector:** `.snapshot-option-row`
+
+```
+Layout:   flex, align-center, gap 8px, margin-bottom 8px
+Input:    flex 1, modal-input style
+Remove btn (.snapshot-option-remove-btn): 28×28px, bg none, border none, color --text-muted,
+           hover color --accent-rose, radius --radius-sm
+```
+
+### Add Option Button
+
+**Selector:** `.snapshot-add-option-btn`
+
+```
+Font:         DM Sans 400, 12px
+Padding:      6px 12px
+Border:       1px dashed --border-subtle
+Border-radius:--radius-sm
+Background:   none
+Color:        --text-muted
+Cursor:       pointer
+Hover:        border --accent-cyan, color --accent-cyan
+```
+
+### Privacy Pill (Create Form)
+
+**Selector:** `.snapshot-privacy-pill`
+
+```
+Padding:      5px 14px
+Border-radius:20px (pill)
+Border:       1px solid --border-subtle
+Font:         DM Sans 500, 12px
+Display:      inline-flex, align-center, gap 5px
+Default:      color --text-secondary
+Selected (.active — public): bg rgba(6,182,212,0.12), border rgba(6,182,212,0.30), color --accent-cyan
+Selected (.active — secret): bg rgba(245,158,11,0.12), border rgba(245,158,11,0.30), color --accent-amber
+```
+
+---
+
 ## PWA Install Banner
 
 ```
