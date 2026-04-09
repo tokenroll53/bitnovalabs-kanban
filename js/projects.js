@@ -10,6 +10,7 @@ import { closeModal } from './modal.js';
 // ====== FILTER STATE (module-level) ======
 let _projectSearch = '';
 let _selectedCodes = new Set();
+let _projectsTab   = 'active'; // 'active' | 'archived'
 
 export const getProjectSearch  = () => _projectSearch;
 export const getSelectedCodes  = () => _selectedCodes;
@@ -114,6 +115,9 @@ export async function restoreProject(code) {
   });
 }
 
+// Expose selected codes for inline onclick handlers in the selection bar
+function _selectedProjectCodes() { return _selectedCodes; }
+
 // ====== FILTERING ======
 
 function getFilteredProjects() {
@@ -145,6 +149,14 @@ export function renderProjects() {
   const view = document.getElementById('projectsView');
   if (!view) return;
 
+  if (_projectsTab === 'archived') {
+    _renderArchivedProjectsView(view);
+  } else {
+    _renderActiveProjectsView(view);
+  }
+}
+
+function _renderActiveProjectsView(view) {
   const projects = getFilteredProjects();
   const total    = getProjects().length;
 
@@ -154,6 +166,8 @@ export function renderProjects() {
     <div class="projects-selection-bar${_selectedCodes.size ? ' visible' : ''}" id="projectsSelectionBar">
       <span class="projects-selection-count">${_selectedCodes.size} proyecto${_selectedCodes.size !== 1 ? 's' : ''} seleccionado${_selectedCodes.size !== 1 ? 's' : ''}</span>
       <button class="btn" onclick="clearProjectSelection()">Deseleccionar todo</button>
+      <button class="btn" style="background:rgba(245,158,11,0.08);border-color:rgba(245,158,11,0.25);color:var(--accent-amber)"
+        onclick="confirmArchiveProjects([..._selectedProjectCodes()])">Archivar seleccionados</button>
       <button class="btn" style="background:rgba(244,63,94,0.08);border-color:rgba(244,63,94,0.25);color:var(--accent-rose)"
         onclick="confirmBatchDelete()">Eliminar seleccionados</button>
     </div>
@@ -173,13 +187,35 @@ export function renderProjects() {
   }
 }
 
-function renderProjectsHeaderBar(total) {
+function _renderArchivedProjectsView(view) {
+  const archived = getArchivedProjects();
+  view.innerHTML = `
+    ${renderProjectsHeaderBar(getProjects().length)}
+    <div class="projects-table-wrapper">
+      ${archived.length ? renderArchivedProjectsTableHTML(archived) : renderProjectsEmptyHTML('archived')}
+    </div>
+  `;
+}
+
+function renderProjectsHeaderBar(activeTotal) {
+  const archivedTotal = getArchivedProjects().length;
+  const isActive      = _projectsTab === 'active';
   return `
     <div class="projects-header-bar">
-      <div style="display:flex;align-items:baseline;gap:8px">
+      <div style="display:flex;align-items:center;gap:12px">
         <h2>Proyectos</h2>
-        <span class="projects-total-count">${total} total</span>
+        <div class="projects-tab-toggle">
+          <button class="projects-tab-btn${isActive ? ' active' : ''}"
+            onclick="switchProjectsTab('active')">
+            Activos<span class="tab-count">${activeTotal}</span>
+          </button>
+          <button class="projects-tab-btn${!isActive ? ' active' : ''}"
+            onclick="switchProjectsTab('archived')">
+            Archivados<span class="tab-count">${archivedTotal}</span>
+          </button>
+        </div>
       </div>
+      ${isActive ? `
       <div style="display:flex;gap:8px">
         <button class="btn" onclick="exportProjectsCSV()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -200,9 +236,17 @@ function renderProjectsHeaderBar(total) {
           Nuevo Proyecto
         </button>
       </div>
+      ` : ''}
     </div>
   `;
 }
+
+window.switchProjectsTab = function(tab) {
+  _projectsTab = tab;
+  _projectSearch = '';
+  _selectedCodes.clear();
+  renderProjects();
+};
 
 function renderProjectsToolbarHTML() {
   return `
