@@ -5,6 +5,7 @@ import { renderBoard } from './board.js';
 import { renderAnalytics } from './analytics.js';
 import { renderArchive } from './archive.js';
 import { renderProjects } from './projects.js';
+import { renderSnapshots, startListTicker, stopListTicker } from './snapshot.js';
 import { exportData } from './ui.js';
 import {
   setCurrentView,
@@ -77,7 +78,9 @@ document.querySelectorAll('.nav-tab').forEach(tab => {
     document.getElementById('analyticsView').classList.remove('active');
     document.getElementById('archiveView').classList.remove('active');
     document.getElementById('projectsView').classList.remove('active');
+    document.getElementById('snapshotView').classList.remove('active');
     document.querySelector('.toolbar').style.display = currentView === 'board' ? '' : 'none';
+    stopListTicker();
 
     if (currentView === 'board') {
       document.getElementById('boardWrapper').classList.remove('hidden');
@@ -90,6 +93,10 @@ document.querySelectorAll('.nav-tab').forEach(tab => {
     } else if (currentView === 'projects') {
       document.getElementById('projectsView').classList.add('active');
       renderProjects();
+    } else if (currentView === 'snapshot') {
+      document.getElementById('snapshotView').classList.add('active');
+      renderSnapshots();
+      startListTicker();
     }
   });
 });
