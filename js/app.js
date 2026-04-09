@@ -133,3 +133,9 @@ if ('serviceWorker' in navigator) {
 }
 
 console.log('[DEBUG] app.js fully loaded and all listeners registered');
+
+// Capture-phase global click tracer — remove after debugging
+document.addEventListener('click', e => {
+  const t = e.target;
+  console.log('[DEBUG] CLICK captured on:', t.tagName, '| id:', t.id, '| class:', t.className);
+}, true);

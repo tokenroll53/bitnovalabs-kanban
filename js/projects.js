@@ -632,8 +632,13 @@ function _renderProjectForm(existing) {
     </div>
   `;
   overlay.classList.add('active');
+  const pfSaveBtn = document.getElementById('pf-save-btn');
+  console.log('[DEBUG] _renderProjectForm: pf-save-btn found?', !!pfSaveBtn);
   document.getElementById('pf-cancel-btn').addEventListener('click', closeModal);
-  document.getElementById('pf-save-btn').addEventListener('click', () => window.saveProjectFromModal(isEdit ? existing.code : undefined));
+  pfSaveBtn.addEventListener('click', () => {
+    console.log('[DEBUG] pf-save-btn addEventListener fired');
+    window.saveProjectFromModal(isEdit ? existing.code : undefined);
+  });
 }
 
 window.saveProjectFromModal = async function(existingCode) {
