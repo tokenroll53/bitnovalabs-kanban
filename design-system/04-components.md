@@ -758,6 +758,77 @@ Arrow indicator: 10px, rotates -90deg when collapsed.
 
 ---
 
+## Admin Panel
+
+**ID:** `adminModal` · **Selector:** `.modal-overlay` / `.modal` (same modal shell as Card Modal)
+
+Modal width 700px, backdrop blur, z-index 1000. Visible only to users with a doc in `admins/{email}`.
+
+### Invite Form
+
+**Selector:** `.invite-form`
+
+```
+Layout:   flex, gap 8px
+Input:    flex 1, padding 9px 14px, bg --bg-card, border --border-subtle, radius --radius-sm, DM Sans 13px
+          Focus: border --accent-blue, shadow --shadow-glow-blue
+Feedback: .invite-feedback, font-size 12px, min-height 18px
+          .ok → --accent-emerald  |  .err → --accent-rose
+```
+
+### Invite Table
+
+**Selector:** `.invite-table`
+
+```
+Width:          100%
+Border-collapse:collapse
+Font-size:      12px
+
+th: DM Sans 600, 10px, uppercase, letter-spacing 0.5px, --text-muted
+    padding: 0 8px 10px, border-bottom --border-subtle
+
+td: padding 10px 8px, border-bottom --border-subtle, color --text-secondary
+    .email-cell → color --text-primary, font-weight 500
+    Last row: no border-bottom
+```
+
+### Status Badges (invite table)
+
+```
+.badge-pending:   padding 2px 8px, radius 10px, bg rgba(245,158,11,0.15),  color --accent-amber,   DM Sans 600 10px
+.badge-accepted:  padding 2px 8px, radius 10px, bg rgba(16,185,129,0.15),  color --accent-emerald, DM Sans 600 10px
+```
+
+### Revoke Button
+
+**Selector:** `.btn-revoke`
+
+```
+Padding:     3px 10px
+Radius:      --radius-sm (6px)
+Background:  rgba(244,63,94,0.08)
+Border:      1px solid rgba(244,63,94,0.20)
+Color:       --accent-rose
+Font:        DM Sans 500, 11px
+Hover bg:    rgba(244,63,94,0.18)
+Hover border:rgba(244,63,94,0.40)
+```
+
+### Color Dot
+
+**Selector:** `.color-dot`
+
+Used next to team member names in the invite table to show their avatar color.
+
+```
+Size:   10×10px
+Radius: 50%
+Margin-right: 6px
+```
+
+---
+
 ## PWA Install Banner
 
 ```

@@ -1,6 +1,6 @@
 # Data Tokens
 
-Structured data that drives the visual system — columns, labels, priorities, and team member colors. These are defined in `index.html` as JavaScript constants and must match the CSS token values.
+Structured data that drives the visual system — columns, labels, priorities, and team member colors. These are defined in `js/config.js` as exported constants and must match the CSS token values in `css/variables.css`.
 
 ---
 

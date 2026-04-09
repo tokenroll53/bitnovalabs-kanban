@@ -1,6 +1,6 @@
 # Colors
 
-All colors extracted from CSS custom properties in `index.html :root`.
+All colors defined as CSS custom properties in `css/variables.css`.
 The app is **dark-only**. There is no light mode.
 
 ---

@@ -1,6 +1,8 @@
 # Bitnova Kanban — Design System
 
-This folder documents the complete design system extracted from the current app (`index.html`). It is the source of truth for recreating and extending the UI in Figma.
+This folder documents the complete design system of the app. It is the source of truth for recreating and extending the UI in Figma.
+
+**Source files:** CSS tokens live in `css/variables.css`. JS data constants (columns, labels, priorities, avatar palette) live in `js/config.js`.
 
 The visual language is a **dark-only, high-contrast, developer-focused** interface. Deep navy/slate backgrounds, blue-spectrum accents, three distinct typefaces with clear hierarchy roles, and a consistent border-radius scale.
 
