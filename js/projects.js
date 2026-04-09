@@ -446,7 +446,7 @@ window.confirmBatchDelete = function() {
         onclick="executeBatchDelete()">Eliminar</button>
     </div>
   `;
-  overlay.classList.add('active');
+  overlay.classList.add('open');
 };
 
 window.executeBatchDelete = async function() {
@@ -513,7 +513,7 @@ window.confirmArchiveProjects = function(codes) {
       </button>
     </div>
   `;
-  overlay.classList.add('active');
+  overlay.classList.add('open');
 };
 
 window.selectProjectArchiveReason = function(btn, reason) {
@@ -631,18 +631,12 @@ function _renderProjectForm(existing) {
       </button>
     </div>
   `;
-  overlay.classList.add('active');
-  const pfSaveBtn = document.getElementById('pf-save-btn');
-  console.log('[DEBUG] _renderProjectForm: pf-save-btn found?', !!pfSaveBtn);
+  overlay.classList.add('open');
   document.getElementById('pf-cancel-btn').addEventListener('click', closeModal);
-  pfSaveBtn.addEventListener('click', () => {
-    console.log('[DEBUG] pf-save-btn addEventListener fired');
-    window.saveProjectFromModal(isEdit ? existing.code : undefined);
-  });
+  document.getElementById('pf-save-btn').addEventListener('click', () => window.saveProjectFromModal(isEdit ? existing.code : undefined));
 }
 
 window.saveProjectFromModal = async function(existingCode) {
-  console.log('[DEBUG] saveProjectFromModal called, existingCode=', existingCode);
   const name       = document.getElementById('pf-name').value.trim();
   const type       = document.getElementById('pf-type').value;
   const contact    = document.getElementById('pf-contact').value.trim();
@@ -668,15 +662,12 @@ window.saveProjectFromModal = async function(existingCode) {
       code = existingCode;
       correlative = getProjects().find(p => p.code === existingCode)?.correlative ?? 0;
     } else {
-      console.log('[DEBUG] generating project code...');
       const generated = await generateProjectCode();
       code = generated.code;
       correlative = generated.correlative;
-      console.log('[DEBUG] generated code:', code);
     }
 
     const user = getCurrentUser();
-    console.log('[DEBUG] current user:', user?.email);
     const data = {
       code, name, type, contact, phone, email,
       salesman, teamLeader, correlative,
@@ -686,9 +677,7 @@ window.saveProjectFromModal = async function(existingCode) {
       }),
     };
 
-    console.log('[DEBUG] calling saveProject...');
     await saveProject(data);
-    console.log('[DEBUG] saveProject succeeded');
     closeModal();
     toast(isEdit ? `✅ Proyecto ${code} actualizado` : `✅ Proyecto ${code} creado`);
   } catch (err) {

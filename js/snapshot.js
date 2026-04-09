@@ -318,7 +318,7 @@ window.openSnapshotDetail = async function(id) {
 
   const overlay = document.getElementById('snapshotDetailOverlay');
   const win     = document.getElementById('snapshotDetailWindow');
-  overlay.classList.add('active');
+  overlay.classList.add('open');
   document.body.style.overflow = 'hidden';
 
   win.innerHTML = `<div style="padding:40px;text-align:center;color:var(--text-muted);font-size:13px">Cargando…</div>`;
@@ -695,7 +695,7 @@ window.confirmArchiveSnapshot = function(id) {
         onclick="executeArchiveSnapshot('${escHtml(id)}')">Archivar</button>
     </div>
   `;
-  overlay.classList.add('active');
+  overlay.classList.add('open');
 };
 
 window.executeArchiveSnapshot = async function(id) {
@@ -797,7 +797,7 @@ function _renderSnapshotFormModal() {
       <button class="btn btn-primary" id="sf-save-btn">Crear Snapshot</button>
     </div>
   `;
-  overlay.classList.add('active');
+  overlay.classList.add('open');
   document.getElementById('sf-cancel-btn').addEventListener('click', closeModal);
   document.getElementById('sf-save-btn').addEventListener('click', () => window.saveSnapshotFromModal());
 }
@@ -823,7 +823,6 @@ window.selectSnapshotPrivacy = function(btn, value) {
 };
 
 window.saveSnapshotFromModal = async function() {
-  console.log('[DEBUG] saveSnapshotFromModal called');
   const title      = document.getElementById('sf-title').value.trim();
   const desc       = document.getElementById('sf-desc').value.trim();
   const timespan   = parseInt(document.getElementById('sf-timespan').value, 10);
@@ -850,7 +849,6 @@ window.saveSnapshotFromModal = async function() {
   if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = 'Creando…'; }
 
   try {
-    console.log('[DEBUG] calling createSnapshot...');
     await createSnapshot({
       title,
       description: desc,
@@ -859,7 +857,6 @@ window.saveSnapshotFromModal = async function() {
       timespan,
       options: validOpts.map(o => ({ id: o.id, label: o.label.trim() })),
     });
-    console.log('[DEBUG] createSnapshot succeeded');
     closeModal();
     toast('✅ Snapshot creado');
   } catch (err) {

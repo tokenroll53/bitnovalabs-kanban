@@ -59,10 +59,7 @@ document.getElementById('inviteEmail').addEventListener('keydown', e => {
 document.getElementById('adminBtn').addEventListener('click', openAdminPanel);
 document.getElementById('btnExport').addEventListener('click', exportData);
 document.getElementById('btnNewCard').addEventListener('click', () => openNewCardModal());
-document.getElementById('btnLogout').addEventListener('click', () => {
-  console.log('[DEBUG] btnLogout clicked');
-  logout();
-});
+document.getElementById('btnLogout').addEventListener('click', logout);
 
 // ====== CARD MODAL OVERLAY ======
 document.getElementById('modalOverlay').addEventListener('click', e => {
@@ -132,10 +129,3 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('sw.js').catch(() => { });
 }
 
-console.log('[DEBUG] app.js fully loaded and all listeners registered');
-
-// Capture-phase global click tracer — remove after debugging
-document.addEventListener('click', e => {
-  const t = e.target;
-  console.log('[DEBUG] CLICK captured on:', t.tagName, '| id:', t.id, '| class:', t.className);
-}, true);
