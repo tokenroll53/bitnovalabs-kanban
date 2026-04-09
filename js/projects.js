@@ -679,6 +679,7 @@ window.saveProjectFromModal = async function(existingCode) {
     closeModal();
     toast(isEdit ? `✅ Proyecto ${code} actualizado` : `✅ Proyecto ${code} creado`);
   } catch (err) {
+    console.error('saveProjectFromModal error:', err);
     if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = existingCode ? 'Guardar cambios' : 'Crear Proyecto'; }
     if (err.message === 'CODE_CONFLICT') {
       errEl.textContent = 'Conflicto de código. Intentá de nuevo.';

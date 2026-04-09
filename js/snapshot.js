@@ -857,7 +857,8 @@ window.saveSnapshotFromModal = async function() {
     });
     closeModal();
     toast('✅ Snapshot creado');
-  } catch {
+  } catch (err) {
+    console.error('saveSnapshotFromModal error:', err);
     if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = 'Crear Snapshot'; }
     errEl.textContent = 'Error al crear. Intentá de nuevo.';
     errEl.style.display = '';
