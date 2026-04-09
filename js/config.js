@@ -44,3 +44,15 @@ export const PROJECT_TYPES = [
 
 export const PROJECT_CODE_PREFIX = 'BL';
 export const REUSE_PROJECT_CODE_GAPS = true;
+
+export const SNAPSHOT_TIMESPAN_OPTIONS = [
+  { label: '15 minutos', ms: 15 * 60 * 1000 },
+  { label: '30 minutos', ms: 30 * 60 * 1000 },
+  { label: '1 hora',     ms: 60 * 60 * 1000 },
+  { label: '2 horas',    ms: 2 * 60 * 60 * 1000 },
+  { label: '6 horas',    ms: 6 * 60 * 60 * 1000 },
+  { label: '24 horas',   ms: 24 * 60 * 60 * 1000 },
+  { label: '3 días',     ms: 3 * 24 * 60 * 60 * 1000 },
+  { label: '7 días',     ms: 7 * 24 * 60 * 60 * 1000 },
+];
+export const SNAPSHOT_DEFAULT_VP = 100;
