@@ -31,17 +31,18 @@ Inventario completo de todas las pantallas/overlays del app, sus conexiones de n
 ┌─────────────────────────────────────────────────────────────────┐
 │                          AUTHENTICATED                          │
 │                                                                 │
-│  ┌─────────── Header ────────────┬─── Header Actions ─────┐    │
-│  │  Logo │ [Board] [Analytics]   │ Sync · Admin · User    │    │
-│  │        │ [Archive]  (nav tabs) │                       │    │
-│  └────────┴───────────────────────┴───────────────────────┘    │
-│                                                                 │
-│  Tab "Board" ─────────────────────────► [S5 Board View]        │
-│  Tab "Analíticas" ────────────────────► [S6 Analytics View]    │
-│  Tab "Archivo" ───────────────────────► [S7 Archive View]      │
-│                                                                 │
-│  Clic en tarjeta o "+ Agregar" ───────► [S8 Card Modal]        │
-│  Clic "Admin" (solo admins) ──────────► [S9 Admin Panel]       │
+│  ┌─────────── Header ─────────────────────┬─── Header Actions ─────┐  │
+│  │  Logo │ [Tablero] [Métricas]           │ Sync · Admin · User    │  │
+│  │        │ [Archivados] [Proyectos]       │                       │  │
+│  └────────┴────────────────────────────────┴───────────────────────┘  │
+│                                                                        │
+│  Tab "Tablero" ───────────────────────► [S5 Board View]               │
+│  Tab "Métricas" ──────────────────────► [S6 Analytics View]           │
+│  Tab "Archivados" ────────────────────► [S7 Archive View]             │
+│  Tab "Proyectos" ─────────────────────► [S10 Projects View]           │
+│                                                                        │
+│  Clic en tarjeta o "+ Agregar" ───────► [S8 Card Modal]               │
+│  Clic "Admin" (solo admins) ──────────► [S9 Admin Panel]              │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -149,7 +150,7 @@ Inventario completo de todas las pantallas/overlays del app, sus conexiones de n
 | Zona | Elementos |
 |------|-----------|
 | Izquierda | Logo BITNOVA LABS |
-| Centro | Nav tabs: Board · Analíticas · Archivo |
+| Centro | Nav tabs: Tablero · Métricas · Archivados · Proyectos |
 | Derecha | Dot sync · Btn Admin (solo admins) · Avatar 28px · Nombre · Btn Logout |
 
 ### Toolbar (solo en Board View)
@@ -198,7 +199,7 @@ Inventario completo de todas las pantallas/overlays del app, sus conexiones de n
 ## S6 — Analytics View
 
 **ID:** `analyticsView`  
-**Cuándo aparece:** Nav tab "Analíticas"
+**Cuándo aparece:** Nav tab "Métricas"
 
 | Sección | Contenido |
 |---------|-----------|
@@ -215,7 +216,7 @@ Cada stat card: label uppercase muted · valor Space Grotesk 32px · unidad · t
 ## S7 — Archive View
 
 **ID:** `archiveView`  
-**Cuándo aparece:** Nav tab "Archivo"
+**Cuándo aparece:** Nav tab "Archivados"
 
 | Elemento | Detalles |
 |----------|----------|
@@ -264,6 +265,37 @@ Cada stat card: label uppercase muted · valor Space Grotesk 32px · unidad · t
 | Invitar | Input email + Btn "Enviar invitación" + `.invite-feedback` |
 | Lista | Tabla: Correo · Invitado por · Fecha · Estado badge · Btn Revocar |
 | Estado badges | `pending` (amber) · `accepted` (emerald) |
+
+---
+
+## S10 — Projects View
+
+**ID:** `projectsView`  
+**Cuándo aparece:** Nav tab "Proyectos"  
+**Layout:** Full-width content area with table
+
+| Elemento | Detalles |
+|----------|----------|
+| Header bar | Título "Proyectos" + total count · Btn CSV · Btn JSON · Btn "Nuevo Proyecto" |
+| Toolbar | Search box (max 320px) |
+| Selection bar | Visible when rows checked — count label · "Deseleccionar todo" · "Eliminar seleccionados" (rose) |
+| Table | `.projects-table` — Checkbox · Código · Nombre · Tipo · Contacto · Teléfono · E-mail · Vendedor · Team Leader · Creado · Action |
+| Empty state | Icon + message (search or no data variant) |
+
+**Table columns (hidden on mobile):** Teléfono, E-mail.
+
+**Row actions:**
+- Checkbox → multi-select → batch delete via confirmation modal
+- Action button (⊕) → opens S8 Card Modal pre-filled with project code
+
+**CRUD flows:**
+- "Nuevo Proyecto" → opens project form in modal shell → save → auto-generates `BL{YY}-{NN}` code
+- Row double-click / future edit: opens same project form (edit mode, code displayed as read-only badge)
+- Batch delete → confirmation modal → execute → toast feedback
+
+**Export:**
+- CSV: BOM-prefixed UTF-8, downloads as `bitnova-proyectos-{date}.csv`
+- JSON: downloads as `bitnova-proyectos-{date}.json`
 
 ---
 

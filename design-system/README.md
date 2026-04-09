@@ -2,7 +2,7 @@
 
 This folder documents the complete design system of the app. It is the source of truth for recreating and extending the UI in Figma.
 
-**Source files:** CSS tokens live in `css/variables.css`. JS data constants (columns, labels, priorities, avatar palette) live in `js/config.js`.
+**Source files:** CSS tokens live in `css/variables.css`. JS data constants (columns, labels, priorities, avatar palette, project types) live in `js/config.js`. Projects view styles live in `css/projects.css`.
 
 The visual language is a **dark-only, high-contrast, developer-focused** interface. Deep navy/slate backgrounds, blue-spectrum accents, three distinct typefaces with clear hierarchy roles, and a consistent border-radius scale.
 
@@ -29,7 +29,7 @@ The visual language is a **dark-only, high-contrast, developer-focused** interfa
 - [ ] Create effect styles (shadows) from `03-spacing-radius-shadows.md`
 - [ ] Build base components from `04-components.md`
 - [ ] Add label/priority/column tokens from `05-data-tokens.md`
-- [ ] Lay out all 9 screens using `06-screen-map.md` as reference
+- [ ] Lay out all 10 screens using `06-screen-map.md` as reference
 
 ---
 

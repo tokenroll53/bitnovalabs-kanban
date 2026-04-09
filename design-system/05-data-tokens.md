@@ -113,6 +113,52 @@ Cards are archived with one of two reason values, displayed as a colored badge:
 
 ---
 
+## Project Types
+
+Eight types used to classify projects. Defined in `js/config.js` as `PROJECT_TYPES`. Rendered as `.project-type-badge` pills in the Projects View table.
+
+| ID | Display label |
+|----|--------------|
+| `web_app` | Aplicación Web |
+| `mobile_app` | App Móvil |
+| `ecommerce` | E-commerce |
+| `landing` | Landing / Sitio Corporativo |
+| `automation` | Automatización / Integración |
+| `consulting` | Consultoría / Asesoría |
+| `maintenance` | Mantenimiento / Soporte |
+| `chatbot` | Asistente Digital (Chatbot) |
+
+---
+
+## Project Code Format
+
+Auto-generated on project creation. Prefix constant: `PROJECT_CODE_PREFIX = 'BL'`.
+
+**Pattern:** `BL{YY}-{NN}` (e.g. `BL26-01`, `BL26-02`)
+
+- `YY` = last two digits of the current year (zero-padded)
+- `NN` = sequential correlative within the year (zero-padded, 2 digits)
+- `REUSE_PROJECT_CODE_GAPS = true` → gaps from deleted projects are reused before incrementing the max
+
+The project document ID in Firestore is the code itself (e.g. `projects/BL26-01`).
+
+**Firestore document fields (`projects/{code}`):**
+| Field | Type | Description |
+|-------|------|-------------|
+| `code` | string | e.g. `BL26-01` |
+| `name` | string | Project name |
+| `type` | string | One of the PROJECT_TYPES IDs |
+| `contact` | string | Client contact name |
+| `phone` | string | Client phone |
+| `email` | string | Client email |
+| `salesman` | string | Salesman name |
+| `teamLeader` | string | Team leader name |
+| `correlative` | number | Numeric sequence used for gap-reuse logic |
+| `createdBy` | string | Email of the user who created the project |
+| `createdAt` | timestamp | Firestore server timestamp |
+
+---
+
 ## Sync Status States
 
 The header sync dot has three states:

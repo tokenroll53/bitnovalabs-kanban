@@ -829,6 +829,204 @@ Margin-right: 6px
 
 ---
 
+## Projects View
+
+**ID:** `projectsView` · **Selector:** `.projects-view`
+
+Full-screen content area, shown when the "Proyectos" nav tab is active.
+
+```
+Padding:    24px
+Overflow:   auto (y)
+Display:    none → block (.active)
+```
+
+### Projects Header Bar
+
+**Selector:** `.projects-header-bar`
+
+```
+Layout:   flex, space-between, align-center
+Margin-bottom: 20px
+```
+
+Title: Space Grotesk 700, 20px, `--text-primary`.
+Total count: JetBrains Mono 11px, `--text-muted`, margin-left 10px.
+Right side: Btn CSV · Btn JSON · Btn "Nuevo Proyecto" (btn-primary).
+
+### Projects Toolbar
+
+**Selector:** `.projects-toolbar`
+
+```
+Layout:   flex, align-center, gap 10px, flex-wrap
+Margin-bottom: 14px
+```
+
+**Projects search box** (`.projects-search`):
+```
+Padding:      5px 12px
+Border-radius:--radius-sm (6px)
+Background:   --bg-surface
+Border:       1px solid --border-subtle
+Layout:       flex, align-center, gap 6px
+Max-width:    320px
+Flex:         1
+Focus-within: border --border-active
+```
+
+Icon: SVG 14×14px, `--text-muted`. Input: DM Sans 12px, placeholder `--text-muted`.
+
+Separator (`.projects-toolbar-sep`): `1px × 20px`, `--border-subtle`.
+
+### Projects Selection Bar
+
+**Selector:** `.projects-selection-bar`
+
+Shown when at least one row is checked. Hidden by default (`display: none`), visible with `.visible` class.
+
+```
+Padding:      8px 16px
+Background:   --bg-elevated
+Border:       1px solid --border-subtle
+Border-radius:--radius-sm (6px)
+Layout:       flex, align-center, gap 12px
+Margin-bottom:10px
+```
+
+Count label: DM Sans 12px, `--text-secondary`, flex 1.
+Buttons: "Deseleccionar todo" (base btn) · "Eliminar seleccionados" (rose destructive inline style).
+
+### Projects Table Wrapper
+
+**Selector:** `.projects-table-wrapper`
+
+```
+Background:    --bg-surface
+Border:        1px solid --border-subtle
+Border-radius: --radius-lg (14px)
+Overflow:      hidden
+```
+
+### Projects Table
+
+**Selector:** `.projects-table`
+
+```
+Width:           100%
+Border-collapse: collapse
+Font-size:       13px
+```
+
+**`th`:** JetBrains Mono 600, 10px, uppercase, letter-spacing 0.5px, `--text-muted`, padding `10px 14px`, border-bottom `--border-subtle`, bg `--bg-deep`.
+
+**`td`:** padding `12px 14px`, border-bottom `--border-subtle`, color `--text-secondary`, vertical-align middle. Last row: no border-bottom.
+
+**Row states:**
+| State | Background |
+|-------|-----------|
+| Hover | `--bg-card-hover` (all cells) |
+| Selected | `rgba(59,130,246,0.06)` |
+
+**Column classes:**
+| Class | Width | Behavior |
+|-------|-------|----------|
+| `.col-check` | 36px | Checkbox; hidden at mobile |
+| `.col-phone` | — | Hidden at `≤768px` |
+| `.col-email` | — | Hidden at `≤768px` |
+| `.col-action` | 44px | Centered; project link button |
+
+**Checkbox** (`input[type="checkbox"]`): `accent-color: --accent-blue`, 14×14px.
+
+### Project Code Badge (Projects Table)
+
+**Selector:** `.project-code-badge` (projects context)
+
+Cyan-tinted variant — distinct from the neutral gray badge used on kanban cards.
+
+```
+Padding:      2px 8px
+Border-radius:--radius-sm (6px)
+Background:   rgba(6,182,212,0.10)
+Border:       1px solid rgba(6,182,212,0.20)
+Font:         JetBrains Mono 600, 11px, letter-spacing 0.5px
+Color:        --accent-cyan
+```
+
+### Project Name Cell
+
+**Selector:** `.project-name-cell`
+
+```
+Font-weight: 600
+Color:       --text-primary
+```
+
+### Project Type Badge
+
+**Selector:** `.project-type-badge`
+
+```
+Padding:      2px 8px
+Border-radius:10px (pill)
+Background:   --bg-card
+Border:       1px solid --border-subtle
+Font:         DM Sans 11px
+Color:        --text-secondary
+```
+
+### Project Link Button
+
+**Selector:** `.project-link-btn`
+
+Inline icon button in the action column — opens the card modal pre-filled with the project code.
+
+```
+Size:         28×28px
+Background:   none
+Border:       1px solid transparent
+Border-radius:--radius-sm (6px)
+Color:        --text-muted
+```
+
+Hover: color `--accent-blue`, border `--border-active`, bg `rgba(59,130,246,0.08)`.
+
+### Projects Empty State
+
+**Selector:** `.projects-empty`
+
+```
+Text-align:  center
+Padding:     60px 24px
+Color:       --text-muted
+Font:        DM Sans 13px
+```
+
+SVG icon: 40×40px, opacity 0.3, centered above text.
+Message varies: search active → "No hay proyectos que coincidan…" / no search → "Todavía no hay proyectos. Creá el primero."
+
+### Project Form (Modal)
+
+Reuses the standard modal shell (`.modal-overlay` / `.modal`). Layout uses a 2-column grid.
+
+**Selector:** `.project-form-grid`
+
+```
+Display: grid
+Columns: 1fr 1fr
+Gap:     14px
+```
+
+Full-width row: `.project-form-full` → `grid-column: 1 / -1`.
+
+Fields: Nombre (full-width) · Tipo (select) · Vendedor · Contacto · Team Leader · Teléfono · E-mail.
+Required: Nombre, Tipo. All others optional.
+Error block: `rgba(244,63,94,0.10)` bg, `--accent-rose` text, `--radius-sm`, 12px.
+
+Mobile: grid collapses to 1 column.
+
+---
+
 ## PWA Install Banner
 
 ```
