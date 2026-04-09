@@ -46,6 +46,14 @@ export const setUnsubCards     = (v) => { _unsubCards = v; };
 export const getUnsubArchived  = () => _unsubArchived;
 export const setUnsubArchived  = (v) => { _unsubArchived = v; };
 
+let _projects       = [];
+let _unsubProjects  = null;
+
+export const getProjects       = () => _projects;
+export const setProjects       = (v) => { _projects = v; };
+export const getUnsubProjects  = () => _unsubProjects;
+export const setUnsubProjects  = (v) => { _unsubProjects = v; };;
+
 export function getNextAvatarColor() {
   const usedColors = new Set(_team.map(t => t.color));
   const unused = AVATAR_PALETTE.find(c => !usedColors.has(c));
