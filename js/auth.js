@@ -273,7 +273,8 @@ export function toggleLinkSection() {
 
 // ====== LOGOUT ======
 export function logout() {
-  if (!confirm('¿Cerrar sesión?')) return;
+  console.log('[DEBUG] logout() called');
+  if (!confirm('¿Cerrar sesión?')) { console.log('[DEBUG] logout cancelled by user'); return; }
   const unsubCards = getUnsubCards();
   const unsubArchived = getUnsubArchived();
   const unsubProjects = getUnsubProjects();

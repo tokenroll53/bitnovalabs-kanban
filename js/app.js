@@ -59,7 +59,10 @@ document.getElementById('inviteEmail').addEventListener('keydown', e => {
 document.getElementById('adminBtn').addEventListener('click', openAdminPanel);
 document.getElementById('btnExport').addEventListener('click', exportData);
 document.getElementById('btnNewCard').addEventListener('click', () => openNewCardModal());
-document.getElementById('btnLogout').addEventListener('click', logout);
+document.getElementById('btnLogout').addEventListener('click', () => {
+  console.log('[DEBUG] btnLogout clicked');
+  logout();
+});
 
 // ====== CARD MODAL OVERLAY ======
 document.getElementById('modalOverlay').addEventListener('click', e => {
@@ -128,3 +131,5 @@ document.getElementById('swimlaneBtn').addEventListener('click', () => {
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('sw.js').catch(() => { });
 }
+
+console.log('[DEBUG] app.js fully loaded and all listeners registered');
