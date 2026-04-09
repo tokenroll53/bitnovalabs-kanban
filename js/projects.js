@@ -635,6 +635,7 @@ function _renderProjectForm(existing) {
 }
 
 window.saveProjectFromModal = async function(existingCode) {
+  console.log('[DEBUG] saveProjectFromModal called, existingCode=', existingCode);
   const name       = document.getElementById('pf-name').value.trim();
   const type       = document.getElementById('pf-type').value;
   const contact    = document.getElementById('pf-contact').value.trim();
@@ -660,12 +661,15 @@ window.saveProjectFromModal = async function(existingCode) {
       code = existingCode;
       correlative = getProjects().find(p => p.code === existingCode)?.correlative ?? 0;
     } else {
+      console.log('[DEBUG] generating project code...');
       const generated = await generateProjectCode();
       code = generated.code;
       correlative = generated.correlative;
+      console.log('[DEBUG] generated code:', code);
     }
 
     const user = getCurrentUser();
+    console.log('[DEBUG] current user:', user?.email);
     const data = {
       code, name, type, contact, phone, email,
       salesman, teamLeader, correlative,
@@ -675,7 +679,9 @@ window.saveProjectFromModal = async function(existingCode) {
       }),
     };
 
+    console.log('[DEBUG] calling saveProject...');
     await saveProject(data);
+    console.log('[DEBUG] saveProject succeeded');
     closeModal();
     toast(isEdit ? `✅ Proyecto ${code} actualizado` : `✅ Proyecto ${code} creado`);
   } catch (err) {

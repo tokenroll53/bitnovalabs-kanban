@@ -821,6 +821,7 @@ window.selectSnapshotPrivacy = function(btn, value) {
 };
 
 window.saveSnapshotFromModal = async function() {
+  console.log('[DEBUG] saveSnapshotFromModal called');
   const title      = document.getElementById('sf-title').value.trim();
   const desc       = document.getElementById('sf-desc').value.trim();
   const timespan   = parseInt(document.getElementById('sf-timespan').value, 10);
@@ -847,6 +848,7 @@ window.saveSnapshotFromModal = async function() {
   if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = 'Creando…'; }
 
   try {
+    console.log('[DEBUG] calling createSnapshot...');
     await createSnapshot({
       title,
       description: desc,
@@ -855,6 +857,7 @@ window.saveSnapshotFromModal = async function() {
       timespan,
       options: validOpts.map(o => ({ id: o.id, label: o.label.trim() })),
     });
+    console.log('[DEBUG] createSnapshot succeeded');
     closeModal();
     toast('✅ Snapshot creado');
   } catch (err) {
