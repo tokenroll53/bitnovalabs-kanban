@@ -159,6 +159,27 @@ The project document ID in Firestore is the code itself (e.g. `projects/BL26-01`
 
 ---
 
+## Project Archive Fields
+
+Added to the project document on archive, removed on restore. The project stays in the `projects` collection — no collection move needed.
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `archived` | boolean | `true` when archived; set back to `false` on restore |
+| `archivedAt` | string | ISO timestamp of the archive action |
+| `archivedBy` | string | displayName or email of the user who archived |
+| `archiveReason` | string | `'completed'` \| `'cancelled'` |
+
+On restore, `archivedAt`, `archivedBy`, and `archiveReason` are deleted via `FieldValue.delete()`.
+
+**Archive reason display:**
+| Value | Label | Badge color |
+|-------|-------|-------------|
+| `completed` | Completado | `--accent-emerald` on `rgba(16,185,129,0.15)` |
+| `cancelled` | Cancelado | `--accent-rose` on `rgba(244,63,94,0.15)` |
+
+---
+
 ## Sync Status States
 
 The header sync dot has three states:

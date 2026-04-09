@@ -851,8 +851,22 @@ Margin-bottom: 20px
 ```
 
 Title: Space Grotesk 700, 20px, `--text-primary`.
-Total count: JetBrains Mono 11px, `--text-muted`, margin-left 10px.
-Right side: Btn CSV · Btn JSON · Btn "Nuevo Proyecto" (btn-primary).
+Left side also contains the **tab toggle** (see below).
+Right side (active tab only): Btn CSV · Btn JSON · Btn "Nuevo Proyecto" (btn-primary).
+
+### Projects Tab Toggle
+
+**Selector:** `.projects-tab-toggle` / `.projects-tab-btn`
+
+Pill group embedded in the header bar. Switches between "Activos" and "Archivados" panels.
+
+```
+Container:   flex, gap 4px, bg --bg-surface, border --border-subtle, radius --radius-sm, padding 3px
+Button:      DM Sans 500, 12px, padding 4px 12px, radius (--radius-sm - 1px)
+Default:     color --text-secondary, bg none
+Active:      bg --bg-elevated, color --text-primary
+Count span:  .tab-count — JetBrains Mono 10px, color --text-muted (--text-secondary when active)
+```
 
 ### Projects Toolbar
 
@@ -895,7 +909,9 @@ Margin-bottom:10px
 ```
 
 Count label: DM Sans 12px, `--text-secondary`, flex 1.
-Buttons: "Deseleccionar todo" (base btn) · "Eliminar seleccionados" (rose destructive inline style).
+Buttons: "Deseleccionar todo" (base btn) · "Archivar seleccionados" (amber tint) · "Eliminar seleccionados" (rose destructive inline style).
+
+Amber button inline style: `background: rgba(245,158,11,0.08)`, `border-color: rgba(245,158,11,0.25)`, `color: --accent-amber`.
 
 ### Projects Table Wrapper
 
@@ -934,7 +950,7 @@ Font-size:       13px
 | `.col-check` | 36px | Checkbox; hidden at mobile |
 | `.col-phone` | — | Hidden at `≤768px` |
 | `.col-email` | — | Hidden at `≤768px` |
-| `.col-action` | 44px | Centered; project link button |
+| `.col-action` | 80px | Centered; holds create-card + archive icon buttons |
 
 **Checkbox** (`input[type="checkbox"]`): `accent-color: --accent-blue`, 14×14px.
 
@@ -991,6 +1007,22 @@ Color:        --text-muted
 
 Hover: color `--accent-blue`, border `--border-active`, bg `rgba(59,130,246,0.08)`.
 
+### Project Archive Button
+
+**Selector:** `.project-archive-btn`
+
+Second icon button in the action column of the active projects table. Opens the archive confirmation modal.
+
+```
+Size:         28×28px
+Background:   none
+Border:       1px solid transparent
+Border-radius:--radius-sm (6px)
+Color:        --text-muted
+```
+
+Hover: color `--accent-amber`, border `rgba(245,158,11,0.3)`, bg `rgba(245,158,11,0.08)`.
+
 ### Projects Empty State
 
 **Selector:** `.projects-empty`
@@ -1003,7 +1035,59 @@ Font:        DM Sans 13px
 ```
 
 SVG icon: 40×40px, opacity 0.3, centered above text.
-Message varies: search active → "No hay proyectos que coincidan…" / no search → "Todavía no hay proyectos. Creá el primero."
+Message varies by tab and search state:
+- Active + no search → "Todavía no hay proyectos. Creá el primero."
+- Active + search → "No hay proyectos que coincidan con la búsqueda."
+- Archived → "No hay proyectos archivados."
+
+### Archived Projects Table
+
+Rendered when `_projectsTab === 'archived'`. No checkboxes — per-row restore only.
+
+Columns: Código · Nombre · Tipo · **Motivo** · Archivado por · Fecha · Restaurar
+
+**Motivo badge** — `.project-archive-reason`
+```
+Padding:      2px 8px
+Border-radius:10px (pill)
+Font:         DM Sans 600, 10px, letter-spacing 0.3px
+.completed → bg rgba(16,185,129,0.15), color --accent-emerald, label "Completado"
+.cancelled → bg rgba(244,63,94,0.15),  color --accent-rose,    label "Cancelado"
+```
+
+**Restore button** — `.btn-restore-project`
+```
+Padding:      4px 10px
+Border-radius:--radius-sm (6px)
+Background:   rgba(16,185,129,0.08)
+Border:       1px solid rgba(16,185,129,0.25)
+Color:        --accent-emerald
+Font:         DM Sans 500, 11px
+Hover bg:     rgba(16,185,129,0.18)
+Hover border: rgba(16,185,129,0.5)
+```
+
+### Archive Confirmation Modal
+
+Reuses `#modalOverlay` / `#modalContent` shell. Triggered by selection-bar "Archivar" or per-row archive button.
+
+```
+Header:   "Archivar proyecto(s)"
+Body:     List of code badges + names
+          + Motivo section with two reason picker pills
+Footer:   Cancelar · Archivar (amber, disabled until reason selected)
+```
+
+**Reason picker pill** — `.archive-reason-pill`
+```
+Padding:      5px 14px
+Border-radius:20px (pill)
+Border:       1px solid --border-subtle
+Font:         DM Sans 500, 12px
+Default:      color --text-secondary
+Hover:        border --border-active, color --text-primary
+Selected:     bg rgba(245,158,11,0.15), border rgba(245,158,11,0.5), color --accent-amber
+```
 
 ### Project Form (Modal)
 

@@ -272,30 +272,51 @@ Cada stat card: label uppercase muted · valor Space Grotesk 32px · unidad · t
 
 **ID:** `projectsView`  
 **Cuándo aparece:** Nav tab "Proyectos"  
-**Layout:** Full-width content area with table
+**Layout:** Full-width content area. Header bar has a pill tab toggle: **Activos** / **Archivados**.
+
+### Sub-tab: Activos (default)
 
 | Elemento | Detalles |
 |----------|----------|
-| Header bar | Título "Proyectos" + total count · Btn CSV · Btn JSON · Btn "Nuevo Proyecto" |
+| Header bar | Título · Tab toggle con conteos · Btn CSV · Btn JSON · Btn "Nuevo Proyecto" |
 | Toolbar | Search box (max 320px) |
-| Selection bar | Visible when rows checked — count label · "Deseleccionar todo" · "Eliminar seleccionados" (rose) |
-| Table | `.projects-table` — Checkbox · Código · Nombre · Tipo · Contacto · Teléfono · E-mail · Vendedor · Team Leader · Creado · Action |
+| Selection bar | Visible when rows checked — count · "Deseleccionar todo" · "Archivar seleccionados" (amber) · "Eliminar seleccionados" (rose) |
+| Table | Checkbox · Código · Nombre · Tipo · Contacto · Teléfono · E-mail · Vendedor · Team Leader · Creado · Actions |
 | Empty state | Icon + message (search or no data variant) |
 
 **Table columns (hidden on mobile):** Teléfono, E-mail.
 
-**Row actions:**
-- Checkbox → multi-select → batch delete via confirmation modal
-- Action button (⊕) → opens S8 Card Modal pre-filled with project code
+**Row actions (`.col-action`, 80px):**
+- ⊕ icon button → opens S8 Card Modal pre-filled with project code
+- 📦 icon button (amber hover) → opens archive confirmation modal (single project)
 
-**CRUD flows:**
-- "Nuevo Proyecto" → opens project form in modal shell → save → auto-generates `BL{YY}-{NN}` code
-- Row double-click / future edit: opens same project form (edit mode, code displayed as read-only badge)
-- Batch delete → confirmation modal → execute → toast feedback
+**Checkbox selection → selection bar:**
+- "Archivar seleccionados" → archive confirmation modal (batch)
+- "Eliminar seleccionados" → delete confirmation modal (batch)
 
-**Export:**
-- CSV: BOM-prefixed UTF-8, downloads as `bitnova-proyectos-{date}.csv`
-- JSON: downloads as `bitnova-proyectos-{date}.json`
+### Sub-tab: Archivados
+
+| Elemento | Detalles |
+|----------|----------|
+| Header bar | Título · Tab toggle con conteos (sin export/nueva buttons) |
+| Table | Código · Nombre · Tipo · Motivo badge · Archivado por · Fecha · Btn Restaurar |
+| Empty state | "No hay proyectos archivados." |
+
+**Row action:** "Restaurar" button (emerald tint) → project moves back to Activos tab.
+
+### Archive Confirmation Modal
+
+Opens from per-row archive btn or "Archivar seleccionados". Renders into `#modalOverlay` / `#modalContent`.
+
+1. List of projects to be archived (code badge + name)
+2. Reason picker: **Completado** / **Cancelado** (required pill toggle)
+3. Footer: Cancelar · Archivar (disabled until reason chosen)
+
+### CRUD flows
+- "Nuevo Proyecto" → form modal → auto-generates `BL{YY}-{NN}` code
+- Archive → `archived: true` + metadata fields written in place (same document)
+- Restore → `archived: false`, metadata fields deleted
+- Batch delete → permanent; confirmation required
 
 ---
 
