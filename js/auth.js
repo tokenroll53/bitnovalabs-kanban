@@ -7,6 +7,7 @@ import {
   getUnsubCards, setUnsubCards,
   getUnsubArchived, setUnsubArchived,
   getUnsubProjects, setUnsubProjects, setProjects,
+  getUnsubSnapshots, setUnsubSnapshots, setSnapshots, setArchivedSnapshots,
   getCurrentView, getNextAvatarColor,
 } from './state.js';
 import { toast } from './ui.js';
@@ -16,6 +17,7 @@ import { renderAnalytics } from './analytics.js';
 import { renderArchive } from './archive.js';
 import { startFirestoreListeners } from './firestore.js';
 import { startProjectsListener, renderProjects } from './projects.js';
+import { startSnapshotsListener, renderSnapshots } from './snapshot.js';
 import { isMobile } from './config.js';
 
 // ====== HELPERS ======
@@ -275,9 +277,11 @@ export function logout() {
   const unsubCards = getUnsubCards();
   const unsubArchived = getUnsubArchived();
   const unsubProjects = getUnsubProjects();
+  const unsubSnaps = getUnsubSnapshots();
   if (unsubCards) unsubCards();
   if (unsubArchived) unsubArchived();
   if (unsubProjects) unsubProjects();
+  if (unsubSnaps) unsubSnaps();
   auth.signOut();
 }
 
@@ -363,6 +367,10 @@ export async function submitSetup() {
       onProjectsUpdate: () => { if (getCurrentView() === 'projects') renderProjects(); },
     });
     setUnsubProjects(unsubProjects);
+    const unsubSnaps = startSnapshotsListener({
+      onSnapshotsUpdate: () => { if (getCurrentView() === 'snapshot') renderSnapshots(); },
+    });
+    setUnsubSnapshots(unsubSnaps);
     toast('👋 Hola, ' + (user.displayName?.split(' ')[0] || 'usuario'));
 
   } catch(err) {
@@ -453,6 +461,10 @@ auth.onAuthStateChanged(async user => {
       onProjectsUpdate: () => { if (getCurrentView() === 'projects') renderProjects(); },
     });
     setUnsubProjects(unsubProjects);
+    const unsubSnaps = startSnapshotsListener({
+      onSnapshotsUpdate: () => { if (getCurrentView() === 'snapshot') renderSnapshots(); },
+    });
+    setUnsubSnapshots(unsubSnaps);
     toast('👋 Hola, ' + (user.displayName?.split(' ')[0] || 'usuario'));
 
   } else {
@@ -466,14 +478,18 @@ auth.onAuthStateChanged(async user => {
     const unsubCards = getUnsubCards();
     const unsubArchived = getUnsubArchived();
     const unsubProjects = getUnsubProjects();
+    const unsubSnaps = getUnsubSnapshots();
     if (unsubCards) { unsubCards(); setUnsubCards(null); }
     if (unsubArchived) { unsubArchived(); setUnsubArchived(null); }
     if (unsubProjects) { unsubProjects(); setUnsubProjects(null); }
+    if (unsubSnaps) { unsubSnaps(); setUnsubSnapshots(null); }
 
     setCards([]);
     setArchivedCards([]);
     setTeam([]);
     setProjects([]);
+    setSnapshots([]);
+    setArchivedSnapshots([]);
     renderBoard();
   }
 });
