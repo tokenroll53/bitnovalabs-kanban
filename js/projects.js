@@ -416,6 +416,97 @@ window.executeBatchDelete = async function() {
   }
 };
 
+// ====== ARCHIVE / RESTORE ======
+
+window.confirmArchiveProjects = function(codes) {
+  if (!codes || codes.length === 0) return;
+
+  const projects = getProjects();
+  const list = codes.map(code => {
+    const p = projects.find(x => x.code === code);
+    return `<li style="margin:4px 0;color:var(--text-secondary)">
+      <span class="project-code-badge">${escHtml(code)}</span>
+      ${p ? ' — ' + escHtml(p.name) : ''}
+    </li>`;
+  }).join('');
+
+  const overlay = document.getElementById('modalOverlay');
+  const content = document.getElementById('modalContent');
+  content.dataset.archiveCodes = JSON.stringify(codes);
+  content.dataset.archiveReason = '';
+
+  content.innerHTML = `
+    <div class="modal-header">
+      <h2>Archivar proyecto${codes.length !== 1 ? 's' : ''}</h2>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="color:var(--text-secondary);margin-bottom:12px">
+        ¿Archivar ${codes.length} proyecto${codes.length !== 1 ? 's' : ''}?
+      </p>
+      <ul style="list-style:none;padding:0;margin:0 0 20px">
+        ${list}
+      </ul>
+      <div class="modal-section-title" style="margin-bottom:8px">Motivo</div>
+      <div style="display:flex;gap:8px">
+        <button class="archive-reason-pill" data-reason="completed"
+          onclick="selectProjectArchiveReason(this,'completed')">
+          Completado
+        </button>
+        <button class="archive-reason-pill" data-reason="cancelled"
+          onclick="selectProjectArchiveReason(this,'cancelled')">
+          Cancelado
+        </button>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal()">Cancelar</button>
+      <button class="btn" id="archiveConfirmBtn" disabled
+        style="background:rgba(245,158,11,0.15);border-color:rgba(245,158,11,0.4);color:var(--accent-amber)"
+        onclick="executeArchiveProjects()">
+        Archivar
+      </button>
+    </div>
+  `;
+  overlay.classList.add('active');
+};
+
+window.selectProjectArchiveReason = function(btn, reason) {
+  document.querySelectorAll('.archive-reason-pill').forEach(p => p.classList.remove('selected'));
+  btn.classList.add('selected');
+  document.getElementById('modalContent').dataset.archiveReason = reason;
+  document.getElementById('archiveConfirmBtn').disabled = false;
+};
+
+window.executeArchiveProjects = async function() {
+  const content = document.getElementById('modalContent');
+  const codes  = JSON.parse(content.dataset.archiveCodes || '[]');
+  const reason = content.dataset.archiveReason;
+  if (!codes.length || !reason) return;
+
+  const btn = document.getElementById('archiveConfirmBtn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Archivando…'; }
+
+  try {
+    await batchArchiveProjects(codes, reason);
+    _selectedCodes.clear();
+    closeModal();
+    toast(`📦 ${codes.length} proyecto${codes.length !== 1 ? 's' : ''} archivado${codes.length !== 1 ? 's' : ''}`);
+  } catch {
+    if (btn) { btn.disabled = false; btn.textContent = 'Archivar'; }
+    toast('❌ Error al archivar. Intentá de nuevo.');
+  }
+};
+
+window.restoreProjectAction = async function(code) {
+  try {
+    await restoreProject(code);
+    toast(`✅ Proyecto ${code} restaurado`);
+  } catch {
+    toast('❌ Error al restaurar. Intentá de nuevo.');
+  }
+};
+
 // ====== NEW / EDIT PROJECT MODAL ======
 
 export function openNewProjectModal() {
