@@ -1,10 +1,11 @@
 # Plan: Modularización Opción A — ES Modules sin build tool
 
+> **Estado: COMPLETADO** (rama `refactor/modularizacion-opcion-a`, 2026-04-08)
+> Todas las fases implementadas. `index.html` es ahora una cáscara limpia.
+
 ## Contexto
 
-`index.html` es un monolito de ~3600 líneas con CSS, HTML y JS mezclados. Cualquier cambio roza código no relacionado. El objetivo es separarlo en archivos con responsabilidades claras usando ES Modules nativos del navegador — sin agregar npm, bundler ni ninguna dependencia nueva. GitHub Pages sigue funcionando igual.
-
-El trabajo se dividirá en 7 fases ordenadas por nivel de riesgo ascendente. Cada fase valida antes de avanzar. Al terminar, `index.html` quedará como una cáscara limpia que solo contiene el HTML y los `<link>`/`<script>` necesarios.
+`index.html` era un monolito de ~3600 líneas con CSS, HTML y JS mezclados. El objetivo fue separarlo en archivos con responsabilidades claras usando ES Modules nativos del navegador — sin agregar npm, bundler ni ninguna dependencia nueva. GitHub Pages sigue funcionando igual.
 
 ---
 
@@ -46,7 +47,7 @@ bitnovalabs-kanbas/
 
 ---
 
-## Grafo de dependencias (import order)
+## Grafo de dependencias
 
 ```
 firebase.js   ← no imports (usa global window.firebase de CDN)
@@ -63,13 +64,11 @@ auth.js       ← import firebase.js, state.js, ui.js, admin.js, board.js, analy
 app.js        ← import todo lo anterior + wires event listeners
 ```
 
-**Nota crítica:** Los scripts CDN de Firebase (`firebase-app-compat.js`, etc.) son `<script>` regulares (no módulos). Se ejecutan antes que cualquier `<script type="module">`. Por eso `window.firebase` está disponible cuando `firebase.js` (módulo) se ejecuta. No se necesita `import` de npm.
+**Nota:** Los scripts CDN de Firebase (`firebase-app-compat.js`, etc.) son `<script>` regulares (no módulos). Se ejecutan antes que cualquier `<script type="module">`. Por eso `window.firebase` está disponible cuando `firebase.js` (módulo) se ejecuta.
 
 ---
 
 ## Diseño de state.js
-
-El estado compartido centralizado es la pieza más crítica. Usará un objeto plano con funciones exportadas para get/set:
 
 ```js
 // js/state.js
@@ -115,160 +114,34 @@ export function getNextAvatarColor() {
 
 ---
 
-## Fases de implementación
+## Fases implementadas
 
-### Fase 1 — CSS Split (riesgo: ninguno)
+| Fase | Descripción | Commit |
+|------|-------------|--------|
+| 1 — CSS Split | 14 archivos CSS extraídos, `<link>` tags en `<head>` | _(incluido en fases posteriores)_ |
+| 2 — Fundacionales | `firebase.js`, `config.js`, `state.js`, `ui.js` | _(incluido en fases posteriores)_ |
+| 3 — Firestore | `firestore.js` con `startFirestoreListeners()` | `3d06831` |
+| 4 — Features | `board.js`, `modal.js`, `analytics.js`, `archive.js` | `02ae17c` |
+| 5 — Auth/Admin | `admin.js`, `auth.js` con todos los flows | `f058e91` |
+| 6 — Entry point | `app.js`, `addEventListener` reemplaza `onclick` | `e6184a6` |
+| 7 — Limpieza | Bloque `<script>` monolítico eliminado de `index.html` | `6faaed3` |
 
-Mover todos los bloques CSS a sus archivos. El HTML no cambia, solo el `<head>` agrega `<link>` tags.
+### Decisión de diseño — Fase 3
 
-**Bloques a mover** (referencia de líneas en `index.html` actual):
-| Archivo | Líneas origen |
-|---------|--------------|
-| `variables.css` | 20–57 (`:root`) |
-| `reset.css` | 59–99 (reset, scrollbar) |
-| `animations.css` | Todos los `@keyframes` distribuidos en el CSS |
-| `header.css` | 101–215 (header, logo, nav, buttons base, user-info, sync, logout, admin btn) |
-| `toolbar.css` | 217–314 (toolbar, filter chips, search boxes) |
-| `board.css` | 316–458 (board wrapper, columns, swimlanes) |
-| `card.css` | 460–720 (card completa y sub-elementos) |
-| `modal.css` | 722–940 (modal overlay, form, checklist, label picker) |
-| `analytics.css` | 941–957 (analytics view) |
-| `archive.css` | 957–1277 (archive items, detail, badges) |
-| `pwa.css` | PWA install banner |
-| `auth.css` | 1316–1657 (login, setup, reset, email-confirm overlays) |
-| `admin.css` | 1833–1981 (admin panel, invite table) |
-| `responsive.css` | 1316–1363 (@media queries) |
-
-**Validación:** App se ve idéntica. Revisar todas las pantallas visualmente.
-
----
-
-### Fase 2 — Módulos fundacionales (riesgo: bajo)
-
-Crear `firebase.js`, `config.js`, `state.js`, `ui.js`. No tocan el JS existente aún — coexisten con el `<script>` original.
-
-**`firebase.js`:**
-```js
-const FIREBASE_CONFIG = { /* copiar del index.html */ };
-firebase.initializeApp(FIREBASE_CONFIG);
-export const auth = firebase.auth();
-export const db = firebase.firestore();
-db.enablePersistence({ synchronizeTabs: true }).catch(() => {});
-```
-
-**`config.js`:** Exportar COLUMNS, LABELS, PRIORITIES, AVATAR_PALETTE, isMobile()
-
-**`state.js`:** Como diseñado arriba
-
-**`ui.js`:** Exportar toast(), escHtml(), formatDate(), getDueClass(), exportData()
-
----
-
-### Fase 3 — Capa de datos: firestore.js (riesgo: bajo-medio)
-
-Extraer todas las funciones de Firestore y `startFirestoreListeners()`. Esta función necesita callbacks hacia `renderBoard()`, `renderAnalytics()`, `renderArchive()` — se pasarán como parámetros en `app.js` para evitar imports circulares:
+`startFirestoreListeners()` recibe callbacks para evitar imports circulares:
 
 ```js
 // firestore.js
 export function startFirestoreListeners({ onCardsUpdate, onArchiveUpdate }) { ... }
 ```
 
----
-
-### Fase 4 — Módulos de feature (riesgo: medio)
-
-Orden: `board.js` → `modal.js` → `analytics.js` → `archive.js`
-
-Cada módulo exporta sus funciones públicas y las hace disponibles en `window` temporalmente para que el HTML inline (`onclick="..."`) siga funcionando durante la migración:
-
-```js
-// Al final de board.js (temporal hasta migrar event listeners a app.js)
-window.openNewCardModal = openNewCardModal;
-window.openCardDetail = openCardDetail;
-```
-
-Esto permite migrar módulo por módulo sin romper los `onclick` del HTML hasta la Fase 6.
+Los callbacks (`renderBoard`, `renderAnalytics`, `renderArchive`) se pasan desde `app.js`.
 
 ---
 
-### Fase 5 — admin.js + auth.js (riesgo: medio)
+## Próximo paso: Opción B (Vite)
 
-Extraer primero `admin.js` (más simple), luego `auth.js` que orquesta todos los flows de autenticación incluyendo `onAuthStateChanged`.
-
----
-
-### Fase 6 — app.js: Entry point y limpieza de event listeners (riesgo: medio)
-
-Reemplazar todos los `onclick="fn()"` del HTML por `addEventListener` en `app.js`:
-
-```js
-// app.js
-import { renderBoard } from './board.js';
-import { loginWithGoogle, loginWithEmail, ... } from './auth.js';
-// ...
-
-document.getElementById('loginGoogleBtn').addEventListener('click', loginWithGoogle);
-document.getElementById('loginEmailBtn').addEventListener('click', loginWithEmail);
-// etc.
-```
-
-Actualizar `index.html`:
-```html
-<!-- Reemplazar todo el bloque <script> existente con: -->
-<script type="module" src="js/app.js"></script>
-```
-
-Eliminar los `window.xxx` temporales de las fases anteriores.
-
----
-
-### Fase 7 — Limpieza y verificación final (riesgo: bajo)
-
-- Eliminar el bloque `<script>` gigante de `index.html`
-- Verificar que ningún `onclick` inline quede sin handler
-- Test completo de todos los flows (login, invite, card CRUD, archive, analytics)
-
----
-
-## Archivos críticos a modificar
-
-| Archivo | Acción |
-|---------|--------|
-| `index.html` | Agregar `<link>` CSS en head; reemplazar `<script>` por `<script type="module" src="js/app.js">` |
-| `js/firebase.js` | Nuevo |
-| `js/config.js` | Nuevo |
-| `js/state.js` | Nuevo |
-| `js/ui.js` | Nuevo |
-| `js/firestore.js` | Nuevo |
-| `js/board.js` | Nuevo |
-| `js/modal.js` | Nuevo |
-| `js/analytics.js` | Nuevo |
-| `js/archive.js` | Nuevo |
-| `js/admin.js` | Nuevo |
-| `js/auth.js` | Nuevo |
-| `js/app.js` | Nuevo |
-| `css/*.css` (14 archivos) | Nuevos |
-
-**Total: 27 archivos nuevos, 1 archivo modificado (index.html).**
-
----
-
-## Verificación por fase
-
-| Fase | Cómo verificar |
-|------|---------------|
-| 1 — CSS | Abrir app en browser: todas las pantallas visualmente idénticas al original |
-| 2 — Fundacionales | No hay cambio visible aún (módulos creados pero no usados) |
-| 3 — Firestore | Login → board carga y sincroniza en tiempo real |
-| 4 — Features | Board renderiza, cards CRUD, analytics y archive funcionan |
-| 5 — Auth | Todos los flows: login email, Google, invite, setup, password reset |
-| 6 — Entry point | `onclick` limpiados, no hay errores en consola, deploy a GitHub Pages OK |
-| 7 — Final | Release Verification Checklist completo (secciones 1–7 de RELEASE_VERIFICATION.md) |
-
----
-
-## Notas de branch
-
-- Esta Fase A se hace en `main` de manera incremental
-- Al terminar, se abre un nuevo branch para la Opción B (Vite)
-- La estructura de carpetas `js/` y `css/` es directamente compatible con Vite — la migración posterior solo agrega `package.json`, `vite.config.js` y actualiza los `<script>` tags
+La estructura `js/` y `css/` es directamente compatible con Vite. La migración solo requiere:
+- Agregar `package.json` y `vite.config.js`
+- Actualizar los `<script>` tags en `index.html`
+- Mover imports de Firebase de CDN a npm package
