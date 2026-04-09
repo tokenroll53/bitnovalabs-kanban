@@ -57,6 +57,17 @@ export const setArchivedProjects  = (v) => { _archivedProjects = v; };
 export const getUnsubProjects     = () => _unsubProjects;
 export const setUnsubProjects     = (v) => { _unsubProjects = v; };
 
+let _snapshots         = [];
+let _archivedSnapshots = [];
+let _unsubSnapshots    = null;
+
+export const getSnapshots          = () => _snapshots;
+export const setSnapshots          = (v) => { _snapshots = v; };
+export const getArchivedSnapshots  = () => _archivedSnapshots;
+export const setArchivedSnapshots  = (v) => { _archivedSnapshots = v; };
+export const getUnsubSnapshots     = () => _unsubSnapshots;
+export const setUnsubSnapshots     = (v) => { _unsubSnapshots = v; };
+
 export function getNextAvatarColor() {
   const usedColors = new Set(_team.map(t => t.color));
   const unused = AVATAR_PALETTE.find(c => !usedColors.has(c));
