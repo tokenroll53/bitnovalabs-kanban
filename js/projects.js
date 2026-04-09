@@ -325,15 +325,59 @@ function renderProjectRowHTML(p) {
   `;
 }
 
-function renderProjectsEmptyHTML() {
+function renderProjectsEmptyHTML(tab = 'active') {
+  const msg = tab === 'archived'
+    ? 'No hay proyectos archivados.'
+    : (_projectSearch ? 'No hay proyectos que coincidan con la búsqueda.' : 'Todavía no hay proyectos. Creá el primero.');
   return `
     <div class="projects-empty">
       <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
         <rect x="2" y="3" width="20" height="14" rx="2"/>
         <path d="M8 21h8M12 17v4"/>
       </svg>
-      ${_projectSearch ? 'No hay proyectos que coincidan con la búsqueda.' : 'Todavía no hay proyectos. Creá el primero.'}
+      ${msg}
     </div>
+  `;
+}
+
+function renderArchivedProjectsTableHTML(projects) {
+  const reasonLabel = { completed: 'Completado', cancelled: 'Cancelado' };
+  return `
+    <table class="projects-table">
+      <thead>
+        <tr>
+          <th>Código</th>
+          <th>Nombre</th>
+          <th>Tipo</th>
+          <th>Motivo</th>
+          <th>Archivado por</th>
+          <th>Fecha</th>
+          <th class="col-action"></th>
+        </tr>
+      </thead>
+      <tbody>
+        ${projects.map(p => {
+          const reason = p.archiveReason || '';
+          const label  = reasonLabel[reason] || reason;
+          const date   = p.archivedAt ? new Date(p.archivedAt).toLocaleDateString('es') : '—';
+          return `
+            <tr>
+              <td><span class="project-code-badge">${escHtml(p.code)}</span></td>
+              <td class="project-name-cell">${escHtml(p.name || '—')}</td>
+              <td><span class="project-type-badge">${escHtml(typeLabel(p.type))}</span></td>
+              <td><span class="project-archive-reason ${escHtml(reason)}">${escHtml(label)}</span></td>
+              <td>${escHtml(p.archivedBy || '—')}</td>
+              <td style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted)">${date}</td>
+              <td class="col-action" style="width:auto;text-align:right;padding-right:14px">
+                <button class="btn-restore-project" onclick="restoreProjectAction('${escHtml(p.code)}')">
+                  Restaurar
+                </button>
+              </td>
+            </tr>
+          `;
+        }).join('')}
+      </tbody>
+    </table>
   `;
 }
 
