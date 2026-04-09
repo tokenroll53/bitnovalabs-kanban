@@ -1,7 +1,7 @@
 /* Bitnova Kanban — projects: listing, CRUD, Firestore listener, export */
 
 import { db } from './firebase.js';
-import { getProjects, setProjects, getCurrentUser, getCurrentView } from './state.js';
+import { getProjects, setProjects, getArchivedProjects, setArchivedProjects, getCurrentUser, getCurrentView } from './state.js';
 import { escHtml, toast } from './ui.js';
 import { PROJECT_TYPES, PROJECT_CODE_PREFIX, REUSE_PROJECT_CODE_GAPS } from './config.js';
 import { renderCardModal } from './modal.js';
@@ -54,7 +54,9 @@ export function startProjectsListener({ onProjectsUpdate }) {
   return db.collection('projects')
     .orderBy('createdAt', 'desc')
     .onSnapshot(snapshot => {
-      setProjects(snapshot.docs.map(d => ({ id: d.id, ...d.data() })));
+      const all = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+      setProjects(all.filter(p => !p.archived));
+      setArchivedProjects(all.filter(p => p.archived));
       onProjectsUpdate();
     }, err => console.error('Firestore projects error:', err));
 }
@@ -78,6 +80,38 @@ export async function batchDeleteProjects(codes) {
   const batch = db.batch();
   codes.forEach(code => batch.delete(db.collection('projects').doc(code)));
   return batch.commit();
+}
+
+export async function archiveProject(code, reason) {
+  const user = getCurrentUser();
+  return db.collection('projects').doc(code).update({
+    archived: true,
+    archivedAt: new Date().toISOString(),
+    archivedBy: user?.displayName || user?.email || 'unknown',
+    archiveReason: reason,
+  });
+}
+
+export async function batchArchiveProjects(codes, reason) {
+  const user = getCurrentUser();
+  const batch = db.batch();
+  const meta = {
+    archived: true,
+    archivedAt: new Date().toISOString(),
+    archivedBy: user?.displayName || user?.email || 'unknown',
+    archiveReason: reason,
+  };
+  codes.forEach(code => batch.update(db.collection('projects').doc(code), meta));
+  return batch.commit();
+}
+
+export async function restoreProject(code) {
+  return db.collection('projects').doc(code).update({
+    archived: false,
+    archivedAt: window.firebase.firestore.FieldValue.delete(),
+    archivedBy: window.firebase.firestore.FieldValue.delete(),
+    archiveReason: window.firebase.firestore.FieldValue.delete(),
+  });
 }
 
 // ====== FILTERING ======
