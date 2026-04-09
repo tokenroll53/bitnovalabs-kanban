@@ -27,6 +27,7 @@
   <link rel="stylesheet" href="css/analytics.css">
   <link rel="stylesheet" href="css/archive.css">
   <link rel="stylesheet" href="css/projects.css">
+  <link rel="stylesheet" href="css/snapshot.css">
   <link rel="stylesheet" href="css/admin.css">
   <link rel="stylesheet" href="css/auth.css">
   <link rel="stylesheet" href="css/pwa.css">
@@ -211,6 +212,13 @@
         </svg>
         Proyectos
       </button>
+      <button class="nav-tab" data-view="snapshot">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          style="vertical-align:-2px;margin-right:4px">
+          <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+        </svg>
+        Snapshot
+      </button>
     </nav>
     <div class="header-actions">
       <button class="btn-admin" id="adminBtn" title="Panel de administración">
@@ -287,6 +295,14 @@
 
   <!-- PROJECTS -->
   <div class="projects-view" id="projectsView"></div>
+
+  <!-- SNAPSHOT LIST -->
+  <div class="snapshot-view" id="snapshotView"></div>
+
+  <!-- SNAPSHOT DETAIL OVERLAY -->
+  <div class="snapshot-detail-overlay" id="snapshotDetailOverlay">
+    <div class="snapshot-detail-window" id="snapshotDetailWindow"></div>
+  </div>
 
   <!-- MODAL -->
   <div class="modal-overlay" id="modalOverlay">
