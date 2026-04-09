@@ -29,7 +29,7 @@ The visual language is a **dark-only, high-contrast, developer-focused** interfa
 - [ ] Create effect styles (shadows) from `03-spacing-radius-shadows.md`
 - [ ] Build base components from `04-components.md`
 - [ ] Add label/priority/column tokens from `05-data-tokens.md`
-- [ ] Lay out all 10 screens using `06-screen-map.md` as reference
+- [ ] Lay out all 12 screens using `06-screen-map.md` as reference (S1–S11a)
 
 ---
 
@@ -47,4 +47,4 @@ The visual language is a **dark-only, high-contrast, developer-focused** interfa
 
 **Micro-motion.** Two transition speeds: 150ms fast (hover, focus) and 250ms smooth (modals, panels). Easing is always `cubic-bezier(0.4, 0, 0.2, 1)` (Material standard ease).
 
-*Last updated: 2026-04-08*
+*Last updated: 2026-04-09*

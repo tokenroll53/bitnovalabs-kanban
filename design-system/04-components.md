@@ -414,6 +414,8 @@ Hover: border `--accent-blue`, color `--accent-blue`, bg `rgba(59,130,246,0.05)`
 
 **Selector:** `.modal-overlay` / `.modal`
 
+> **Implementation note:** The overlay is invisible and non-interactive by default (`opacity: 0; pointer-events: none`). To open a modal, add the class **`open`** to `#modalOverlay` — this is the only class that CSS recognizes. Using `active` or any other class will leave the modal invisible and unclickable. To close, remove the `open` class (or call `closeModal()` from `modal.js`).
+
 **Overlay:**
 ```
 Position:      fixed inset 0
@@ -421,6 +423,8 @@ Z-index:       1000
 Background:    rgba(0,0,0,0.60)
 Backdrop:      blur(4px)
 Transition:    opacity --transition-smooth
+Default:       opacity 0; pointer-events: none
+Open (.open):  opacity 1; pointer-events: all
 ```
 
 **Window:**
