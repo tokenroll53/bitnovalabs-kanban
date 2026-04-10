@@ -1,45 +1,45 @@
 rules_version = '2';
 service cloud.firestore {
-  match /databases/{database}/documents {
+  match / databases / { database } / documents {
 
     // Board cards — any authenticated, invited user can read and write
-    match /cards/{cardId} {
+    match / cards / { cardId } {
       allow read, write: if request.auth != null
-        && exists(/databases/$(database)/documents/invites/$(request.auth.token.email));
+        && exists(/databases/$(database) / documents / invites / $(request.auth.token.email));
     }
 
     // Archived cards — same access as cards
-    match /archivedCards/{cardId} {
+    match / archivedCards / { cardId } {
       allow read, write: if request.auth != null
-        && exists(/databases/$(database)/documents/invites/$(request.auth.token.email));
+        && exists(/databases/$(database) / documents / invites / $(request.auth.token.email));
     }
 
     // Admins — a user can read their own admin document to check their role.
     // Only existing admins can grant or revoke admin status.
-    match /admins/{email} {
+    match / admins / { email } {
       allow read: if request.auth != null && request.auth.token.email == email;
       allow write: if request.auth != null
-        && exists(/databases/$(database)/documents/admins/$(request.auth.token.email));
+        && exists(/databases/$(database) / documents / admins / $(request.auth.token.email));
     }
 
     // Invites — a user can read their own invite to check access.
     // Admins can read all invites (for the admin panel) and create or delete them.
-    match /invites/{email} {
+    match / invites / { email } {
       allow read: if request.auth != null && request.auth.token.email == email;
       allow read, write: if request.auth != null
-        && exists(/databases/$(database)/documents/admins/$(request.auth.token.email));
+        && exists(/databases/$(database) / documents / admins / $(request.auth.token.email));
     }
 
     // Team profiles — any invited user can read all profiles (needed for the assignee picker).
     // Users can only write their own profile.
-    match /team/{userId} {
+    match / team / { userId } {
       allow read: if request.auth != null
-        && exists(/databases/$(database)/documents/invites/$(request.auth.token.email));
+        && exists(/databases/$(database) / documents / invites / $(request.auth.token.email));
       allow write: if request.auth != null && request.auth.uid == userId;
     }
 
     // Deny all other collections by default
-    match /{document=**} {
+    match / { document=**} {
       allow read, write: if false;
     }
   }
