@@ -8,6 +8,7 @@ import {
   setUnsubCards, setUnsubArchived,
 } from './state.js';
 import { toast } from './ui.js';
+import { addNotification, isOwnId, registerOwnId } from './notifications.js';
 
 // ====== FIRESTORE LISTENERS ======
 // Accepts a callbacks object to avoid circular deps with render modules.
@@ -15,10 +16,26 @@ import { toast } from './ui.js';
 // onArchiveUpdate() — called when archivedCards collection changes
 export function startFirestoreListeners({ onCardsUpdate, onArchiveUpdate }) {
   const syncEl = document.getElementById('syncStatus');
+  let _cardsInitialized = false;
 
   // Listen to cards collection
   const unsubCards = db.collection('cards').orderBy('created', 'desc')
     .onSnapshot(snapshot => {
+      if (_cardsInitialized) {
+        snapshot.docChanges().forEach(change => {
+          if (change.type === 'added' &&
+              !change.doc.metadata.hasPendingWrites &&
+              !isOwnId(change.doc.id)) {
+            const card = change.doc.data();
+            addNotification({
+              type: 'new-card',
+              title: 'Nueva tarjeta',
+              body: card.title || '(sin título)',
+            });
+          }
+        });
+      }
+      _cardsInitialized = true;
       setCards(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
       onCardsUpdate();
       syncEl.className = 'sync-status';
@@ -59,6 +76,7 @@ export function firestoreSaveCard(card) {
   const user = getCurrentUser();
   data.updatedAt = window.firebase.firestore.FieldValue.serverTimestamp();
   data.updatedBy = user?.displayName || user?.email || 'unknown';
+  registerOwnId(id);
   return db.collection('cards').doc(id).set(data, { merge: true });
 }
 

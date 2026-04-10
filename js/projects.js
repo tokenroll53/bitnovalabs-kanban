@@ -3,6 +3,7 @@
 import { db } from './firebase.js';
 import { getProjects, setProjects, getArchivedProjects, setArchivedProjects, getCurrentUser, getCurrentView } from './state.js';
 import { escHtml, toast } from './ui.js';
+import { addNotification, isOwnId, registerOwnId } from './notifications.js';
 import { PROJECT_TYPES, PROJECT_CODE_PREFIX, REUSE_PROJECT_CODE_GAPS } from './config.js';
 import { renderCardModal } from './modal.js';
 import { closeModal } from './modal.js';
@@ -52,9 +53,25 @@ export async function generateProjectCode() {
 // ====== FIRESTORE LISTENER ======
 
 export function startProjectsListener({ onProjectsUpdate }) {
+  let _initialized = false;
   return db.collection('projects')
     .orderBy('createdAt', 'desc')
     .onSnapshot(snapshot => {
+      if (_initialized) {
+        snapshot.docChanges().forEach(change => {
+          if (change.type === 'added' &&
+              !change.doc.metadata.hasPendingWrites &&
+              !isOwnId(change.doc.id)) {
+            const p = change.doc.data();
+            addNotification({
+              type: 'new-project',
+              title: 'Nuevo proyecto',
+              body: `${change.doc.id} — ${p.name || ''}`,
+            });
+          }
+        });
+      }
+      _initialized = true;
       const all = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
       setProjects(all.filter(p => !p.archived));
       setArchivedProjects(all.filter(p => p.archived));
@@ -65,6 +82,7 @@ export function startProjectsListener({ onProjectsUpdate }) {
 // ====== CRUD ======
 
 export async function saveProject(data) {
+  if (!data._isEdit) registerOwnId(data.code);
   const ref = db.collection('projects').doc(data.code);
   return db.runTransaction(async tx => {
     const existing = await tx.get(ref);

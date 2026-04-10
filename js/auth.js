@@ -18,6 +18,7 @@ import { renderArchive } from './archive.js';
 import { startFirestoreListeners } from './firestore.js';
 import { startProjectsListener, renderProjects } from './projects.js';
 import { startSnapshotsListener, renderSnapshots } from './snapshot.js';
+import { clearNotifications } from './notifications.js';
 import { isMobile } from './config.js';
 
 // ====== HELPERS ======
@@ -282,6 +283,7 @@ export function logout() {
   if (unsubArchived) unsubArchived();
   if (unsubProjects) unsubProjects();
   if (unsubSnaps) unsubSnaps();
+  clearNotifications();
   auth.signOut();
 }
 

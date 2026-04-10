@@ -1,6 +1,11 @@
 /* Bitnova Kanban — app: entry point, wires all event listeners */
 
 import './auth.js';       // self-initializing: registers onAuthStateChanged, handles URL params
+import {
+  addNotification,
+  toggleNotificationPanel, closeNotificationPanel,
+  markAllRead, markRead,
+} from './notifications.js';
 import { renderBoard } from './board.js';
 import { renderAnalytics } from './analytics.js';
 import { renderArchive } from './archive.js';
@@ -124,8 +129,54 @@ document.getElementById('swimlaneBtn').addEventListener('click', () => {
   renderBoard();
 });
 
+// ====== NOTIFICATION BELL ======
+document.getElementById('notificationBtn').addEventListener('click', e => {
+  e.stopPropagation();
+  toggleNotificationPanel();
+});
+
+document.addEventListener('click', e => {
+  const panel = document.getElementById('notificationPanel');
+  if (panel?.classList.contains('open') &&
+      !panel.contains(e.target) &&
+      e.target.id !== 'notificationBtn') {
+    closeNotificationPanel();
+  }
+});
+
+document.getElementById('notificationPanel').addEventListener('click', e => {
+  if (e.target.closest('#notifMarkAll')) {
+    markAllRead();
+    return;
+  }
+  const row = e.target.closest('.notif-row');
+  if (!row) return;
+  markRead(row.dataset.id);
+  closeNotificationPanel();
+  if (row.dataset.type === 'app-update') {
+    window.location.reload();
+    return;
+  }
+  const viewMap = { 'new-card': 'board', 'new-project': 'projects', 'new-snapshot': 'snapshot' };
+  const target = viewMap[row.dataset.type];
+  if (target) document.querySelector(`.nav-tab[data-view="${target}"]`)?.click();
+});
+
 // ====== PWA SERVICE WORKER ======
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js').catch(() => { });
+  navigator.serviceWorker.register('sw.js').then(reg => {
+    reg.addEventListener('updatefound', () => {
+      const incoming = reg.installing;
+      incoming.addEventListener('statechange', () => {
+        if (incoming.state === 'installed' && navigator.serviceWorker.controller) {
+          addNotification({
+            type: 'app-update',
+            title: 'Actualización disponible',
+            body: 'Hay una nueva versión. Haz clic aquí para actualizar.',
+          });
+        }
+      });
+    });
+  }).catch(() => {});
 }
 

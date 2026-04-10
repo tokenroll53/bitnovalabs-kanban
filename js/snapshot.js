@@ -9,6 +9,7 @@ import {
 import { escHtml, toast } from './ui.js';
 import { SNAPSHOT_TIMESPAN_OPTIONS, SNAPSHOT_DEFAULT_VP } from './config.js';
 import { closeModal } from './modal.js';
+import { addNotification, isOwnId, registerOwnId } from './notifications.js';
 
 // ====== MODULE STATE ======
 
@@ -23,9 +24,25 @@ let _snapshotOptionDraft = [];
 // ====== LISTENER ======
 
 export function startSnapshotsListener({ onSnapshotsUpdate }) {
+  let _initialized = false;
   return db.collection('snapshots')
     .orderBy('createdAt', 'desc')
     .onSnapshot(snapshot => {
+      if (_initialized) {
+        snapshot.docChanges().forEach(change => {
+          if (change.type === 'added' &&
+              !change.doc.metadata.hasPendingWrites &&
+              !isOwnId(change.doc.id)) {
+            const s = change.doc.data();
+            addNotification({
+              type: 'new-snapshot',
+              title: 'Nueva votación',
+              body: s.title || '(sin título)',
+            });
+          }
+        });
+      }
+      _initialized = true;
       const all = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
       setSnapshots(all.filter(s => s.status !== 'archived'));
       setArchivedSnapshots(all.filter(s => s.status === 'archived'));
@@ -37,7 +54,7 @@ export function startSnapshotsListener({ onSnapshotsUpdate }) {
 
 export async function createSnapshot({ title, description, privacy, baseVP, timespan, options }) {
   const user = getCurrentUser();
-  return db.collection('snapshots').add({
+  const ref = await db.collection('snapshots').add({
     title,
     description,
     privacy,
@@ -49,6 +66,8 @@ export async function createSnapshot({ title, description, privacy, baseVP, time
     createdBy: user?.email ?? '',
     createdAt: window.firebase.firestore.FieldValue.serverTimestamp(),
   });
+  registerOwnId(ref.id);
+  return ref;
 }
 
 export async function archiveSnapshot(id) {
