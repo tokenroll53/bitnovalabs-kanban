@@ -370,7 +370,7 @@ window.openSnapshotDetail = async function(id) {
 window.closeSnapshotDetail = function() {
   _stopDetailTimer();
   if (_votesUnsub) { _votesUnsub(); _votesUnsub = null; }
-  document.getElementById('snapshotDetailOverlay').classList.remove('active');
+  document.getElementById('snapshotDetailOverlay').classList.remove('open');
   document.getElementById('snapshotDetailWindow').innerHTML = '';
   document.body.style.overflow = '';
   _detailSnapshotId = null;
