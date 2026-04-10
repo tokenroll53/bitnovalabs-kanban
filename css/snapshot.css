@@ -673,6 +673,33 @@
   color: var(--accent-amber);
 }
 
+/* ---- Creator observer notice ---- */
+.snapshot-creator-observer {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 16px;
+  padding: 14px 16px;
+  background: rgba(245, 158, 11, 0.06);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  border-radius: var(--radius-md);
+}
+
+.snapshot-creator-observer svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+  color: var(--accent-amber);
+  opacity: 0.85;
+}
+
+.snapshot-creator-observer p {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
 /* ---- Responsive ---- */
 @media (max-width: 768px) {
   .snapshot-view { padding: 12px; }

@@ -354,8 +354,9 @@ window.openSnapshotDetail = async function(id) {
     }
   } catch { /* ignore */ }
 
-  const expired = _isExpired(snap);
-  win.innerHTML = _buildDetailHTML(snap, myVote, expired);
+  const expired   = _isExpired(snap);
+  const isCreator = user?.email && snap.createdBy && user.email === snap.createdBy;
+  win.innerHTML = _buildDetailHTML(snap, myVote, expired, isCreator);
 
   if (!expired) {
     _startDetailTimer(snap);
@@ -377,8 +378,13 @@ window.closeSnapshotDetail = function() {
   _cachedVotes      = [];
 };
 
-function _buildDetailHTML(snap, myVote, expired) {
+function _buildDetailHTML(snap, myVote, expired, isCreator) {
   const showResults = snap.privacy === 'public' || expired;
+
+  const spent    = Object.values(_localAllocation).reduce((s, v) => s + (Number(v) || 0), 0);
+  const balance  = snap.baseVP - spent;
+  const barPct   = Math.min(100, snap.baseVP > 0 ? (spent / snap.baseVP) * 100 : 0);
+  const exceeded = balance < 0;
 
   const optionsHTML = (snap.options || []).map(o => {
     const val = _localAllocation[o.id] || 0;
@@ -394,10 +400,57 @@ function _buildDetailHTML(snap, myVote, expired) {
     `;
   }).join('');
 
-  const spent   = Object.values(_localAllocation).reduce((s, v) => s + (Number(v) || 0), 0);
-  const balance = snap.baseVP - spent;
-  const barPct  = Math.min(100, snap.baseVP > 0 ? (spent / snap.baseVP) * 100 : 0);
-  const exceeded = balance < 0;
+  // ---- left column: creator sees observer notice; others see voting UI ----
+  const leftColumnHTML = isCreator
+    ? `
+      ${!expired ? `
+      <div class="snapshot-countdown-block">
+        <div class="snapshot-countdown-label">Tiempo restante</div>
+        <div class="snapshot-countdown-display" id="snapshotCountdown">—</div>
+      </div>
+      ` : ''}
+      <div class="snapshot-creator-observer">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>
+        </svg>
+        <p>Eres el autor de esta propuesta.<br>Los creadores no pueden votar para garantizar la imparcialidad del proceso.</p>
+      </div>
+    `
+    : `
+      <div class="snapshot-vp-tracker" id="snapshotVPTracker">
+        <div>
+          <span class="snapshot-vp-label">Tu Voting Power</span>
+          <span class="snapshot-vp-value">
+            <span id="snapshotVPBalance" style="color:${exceeded ? 'var(--accent-rose)' : 'var(--accent-cyan)'}">${balance}</span>
+            <span style="color:var(--text-muted);font-size:12px"> / ${snap.baseVP}</span>
+          </span>
+        </div>
+        <div class="snapshot-vp-bar-track">
+          <div class="snapshot-vp-bar-fill${exceeded ? ' exceeded' : ''}" id="snapshotVPBar"
+            style="width:${barPct}%"></div>
+        </div>
+      </div>
+
+      ${!expired ? `
+      <div class="snapshot-countdown-block">
+        <div class="snapshot-countdown-label">Tiempo restante</div>
+        <div class="snapshot-countdown-display" id="snapshotCountdown">—</div>
+      </div>
+      ` : ''}
+
+      <div class="snapshot-options-section">
+        <div class="snapshot-section-title">Distribución de Voting Power</div>
+        ${optionsHTML}
+      </div>
+
+      ${!expired ? `
+      <button class="snapshot-commit-btn" id="snapshotCommitBtn"
+        onclick="commitSnapshotVote('${escHtml(snap.id)}')"
+        ${spent < 1 || exceeded ? 'disabled' : ''}>
+        Commit Snapshot ▶
+      </button>
+      ` : ''}
+    `;
 
   return `
     <div class="snapshot-detail-header">
@@ -416,43 +469,10 @@ function _buildDetailHTML(snap, myVote, expired) {
     ` : ''}
 
     <div class="snapshot-detail-body${expired ? ' snapshot-frozen' : ''}" id="snapshotWorkspace">
-
-      <div class="snapshot-vp-tracker" id="snapshotVPTracker">
-        <div>
-          <span class="snapshot-vp-label">Tu Voting Power</span>
-          <span class="snapshot-vp-value">
-            <span id="snapshotVPBalance" style="color:${exceeded ? 'var(--accent-rose)' : 'var(--accent-cyan)'}">${balance}</span>
-            <span style="color:var(--text-muted);font-size:12px"> / ${snap.baseVP}</span>
-          </span>
-        </div>
-        <div class="snapshot-vp-bar-track">
-          <div class="snapshot-vp-bar-fill${exceeded ? ' exceeded' : ''}" id="snapshotVPBar"
-            style="width:${barPct}%"></div>
-        </div>
-      </div>
-
       <div class="snapshot-detail-columns">
 
         <div class="snapshot-detail-left">
-          ${!expired ? `
-          <div class="snapshot-countdown-block">
-            <div class="snapshot-countdown-label">Tiempo restante</div>
-            <div class="snapshot-countdown-display" id="snapshotCountdown">—</div>
-          </div>
-          ` : ''}
-
-          <div class="snapshot-options-section">
-            <div class="snapshot-section-title">Distribución de Voting Power</div>
-            ${optionsHTML}
-          </div>
-
-          ${!expired ? `
-          <button class="snapshot-commit-btn" id="snapshotCommitBtn"
-            onclick="commitSnapshotVote('${escHtml(snap.id)}')"
-            ${spent < 1 || exceeded ? 'disabled' : ''}>
-            Commit Snapshot ▶
-          </button>
-          ` : ''}
+          ${leftColumnHTML}
         </div>
 
         <div class="snapshot-results-panel" id="snapshotResultsPanel">
